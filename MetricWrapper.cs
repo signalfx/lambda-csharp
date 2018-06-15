@@ -31,6 +31,7 @@ namespace signalfxlambdawrapper
         private readonly System.Diagnostics.Stopwatch watch;
         private readonly IDictionary<string, string> defaultDimensions;
         private readonly ISignalFxReporter reporter;
+        private static bool isColdStart = true;
 
 
         public MetricWrapper(ILambdaContext context) : this(context, null)
@@ -71,6 +72,11 @@ namespace signalfxlambdawrapper
             
             watch = System.Diagnostics.Stopwatch.StartNew();
             sendMetricCounter(METRIC_NAME_INVOCATIONS, MetricType.COUNTER);
+            if (isColdStart)
+            {
+              isColdStart = false;
+              sendMetricCounter(METRIC_NAME_COLD_STARTS, MetricType.COUNTER);
+            }
 
         }
 
