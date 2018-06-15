@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+   	<Title>Signalfx Lambda Functions C# Wrapper</Title>
+    <ProjectUrl>https://github.com/signalfx/lambda-csharp</ProjectUrl>
+    <Version>0.0.1</Version>
+    <PackageId>signalfx-lambda-functions</PackageId>
+    <Authors>SignalFx</Authors>
+    <Company>SignalFx</Company> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda" Version="0.10.1" />
+    <PackageReference Include="Amazon.Lambda.Core" Version="1.0.0" />
+    <PackageReference Include="protobuf-net" Version="2.3.10" />
+  </ItemGroup>
+</Project>
