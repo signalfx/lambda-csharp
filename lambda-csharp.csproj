@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
    	<Title>Signalfx Lambda Functions C# Wrapper</Title>
     <ProjectUrl>https://github.com/signalfx/lambda-csharp</ProjectUrl>
-    <Version>0.0.1</Version>
+    <Version>0.1.3</Version>
     <PackageId>signalfx-lambda-functions</PackageId>
     <Authors>SignalFx</Authors>
     <Company>SignalFx</Company> 

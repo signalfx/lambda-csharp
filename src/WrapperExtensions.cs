@@ -15,16 +15,16 @@ namespace SignalFx.LambdaWrapper.Extensions
         private static readonly string WrapperVersion = "0.1.0";
         private static readonly string CustomMetricPrefix = "sfx_metric-";
 
-        public static void AddMetric(this HttpResponse httpResponse, DataPoint dataPoint)
+        public static void AddMetricDataPoint(this HttpResponse httpResponse, DataPoint dataPoint)
         {
             if (dataPoint == null)
             {
-                LambdaLogger.Log($"[Error] adding metric to response. Argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null.{Environment.NewLine}");
+                LambdaLogger.Log($"[Error] adding metric to response. Argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetricDataPoint)} cannot be null.{Environment.NewLine}");
                 return;
             }
             if (string.IsNullOrWhiteSpace(dataPoint.metric))
             {
-                LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null or whitespace.{Environment.NewLine}");
+                LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetricDataPoint)} cannot be null or whitespace.{Environment.NewLine}");
                 return;
             }
             string headerKey = CustomMetricPrefix + Guid.NewGuid();
@@ -50,7 +50,7 @@ namespace SignalFx.LambdaWrapper.Extensions
             var metricDataPointHeaders = from header in responseFeature.Headers
                                 where header.Key.StartsWith(CustomMetricPrefix, StringComparison.Ordinal)
                                 select header;
-            foreach (var metricDataPointHeader in metricDataPointHeaders)
+            foreach (var metricDataPointHeader in metricDataPointHeaders.ToList())
             {
                 responseFeature.Headers.Remove(metricDataPointHeader.Key);
             }

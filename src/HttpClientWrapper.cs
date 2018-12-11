@@ -23,7 +23,7 @@ namespace SignalFx.LambdaWrapper
         {
             public string   AuthToken              { get; set; } = GetStringEnvironmentVariable("SIGNALFX_AUTH_TOKEN");
             public Uri      BaseAddress            { get; set; } = new Uri(GetStringEnvironmentVariable("SIGNALFX_INGEST_ENDPOINT_BASE_ADDRESS", DefaultBaseAddressUrl));
-            public Uri      DataPointIngestPath    { get; set; } = new Uri(GetStringEnvironmentVariable("SIGNALFX_INGEST_ENDPOINT_PATH", DefaultDataPointIngestPath));
+            public Uri      DataPointIngestPath    { get; set; } = new Uri(GetStringEnvironmentVariable("SIGNALFX_INGEST_ENDPOINT_PATH", DefaultDataPointIngestPath), UriKind.Relative);
             public TimeSpan Timeout                { get; set; } = TimeSpan.FromSeconds(GetDoubleEnvironmentVariable("SIGNALFX_SEND_TIMEOUT_SECONDS", 5));
             public TimeSpan ConnectionLeaseTimeout { get; set; } = TimeSpan.FromSeconds(5);
             public TimeSpan DnsRefreshTimeout      { get; set; } = TimeSpan.FromSeconds(5);
@@ -31,12 +31,19 @@ namespace SignalFx.LambdaWrapper
 
         public HttpClientWrapper(Config config = null, HttpMessageHandler handler = null, bool disposeHandler = false)
         {
-            _config = config ?? new Config();
-            _httpClient = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
-            _httpClient.BaseAddress = _config.BaseAddress;
-            _httpClient.Timeout = _config.Timeout;
-            ServicePointManager.FindServicePoint(_config.BaseAddress).ConnectionLeaseTimeout = (int)_config.ConnectionLeaseTimeout.TotalMilliseconds;
-            ServicePointManager.DnsRefreshTimeout = (int)_config.DnsRefreshTimeout.TotalMilliseconds;
+            try
+            {
+                _config = config ?? new Config();
+                _httpClient = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
+                _httpClient.BaseAddress = _config.BaseAddress;
+                _httpClient.Timeout = _config.Timeout;
+                ServicePointManager.FindServicePoint(_config.BaseAddress).ConnectionLeaseTimeout = (int)_config.ConnectionLeaseTimeout.TotalMilliseconds;
+                ServicePointManager.DnsRefreshTimeout = (int)_config.DnsRefreshTimeout.TotalMilliseconds;
+            }
+            catch(Exception exception)
+            {
+                LambdaLogger.Log($"[Error] exception in {nameof(HttpClientWrapper)} constructor.{Environment.NewLine}{exception}{Environment.NewLine}");
+            }
         }
 
         ~HttpClientWrapper()

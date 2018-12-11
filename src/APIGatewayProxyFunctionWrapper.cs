@@ -47,14 +47,7 @@ namespace SignalFx.LambdaWrapper
             }
             finally
             {
-                using (var httpResponseMessage = await HttpClientWrapper.PostDataPointsAsync(dataPoints))
-                {
-                    if (!httpResponseMessage.IsSuccessStatusCode)
-                    {
-                        var content = await httpResponseMessage.Content.ReadAsStringAsync(); 
-                        LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {(int)httpResponseMessage.StatusCode}. Response content: {content}{Environment.NewLine}");
-                    }
-                }
+                PostDataPoints(dataPoints);
             }
             return apiGatewayProxyResponse;
         }
@@ -62,6 +55,11 @@ namespace SignalFx.LambdaWrapper
         protected override void PostMarshallResponseFeature(IHttpResponseFeature aspNetCoreResponseFeature, APIGatewayProxyResponse apiGatewayResponse, ILambdaContext lambdaContext)
         {
             var dataPoints = aspNetCoreResponseFeature.GetCustomMetricDataPoints(lambdaContext);
+            foreach (var dataPoint in dataPoints)
+            {
+                dataPoint.AddDefaultDimensions(lambdaContext);
+            }
+            PostDataPoints(dataPoints);
             aspNetCoreResponseFeature.RemoveCustomMetricDataPointHeaders();
 
         }
@@ -87,6 +85,18 @@ namespace SignalFx.LambdaWrapper
             };
             dataPoint.AddDefaultDimensions(lambdaContext);
             return dataPoint;
+        }
+
+        private void PostDataPoints(IEnumerable<DataPoint> dataPoints)
+        {
+            using (var httpResponseMessage = HttpClientWrapper.PostDataPointsAsync(dataPoints).Result)
+            {
+                if (!httpResponseMessage.IsSuccessStatusCode)
+                {
+                    var content = httpResponseMessage.Content.ReadAsStringAsync().Result;
+                    LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {(int)httpResponseMessage.StatusCode}. Response content: {content}{Environment.NewLine}");
+                }
+            }
         }
     }
 }
