@@ -50,10 +50,9 @@ namespace signalfxlambdawrapper
                              String authToken)
         {
             int timeoutMs = 300; //default timeout 300ms
-            try {
-                timeoutMs = Int32.Parse(GetEnvironmentVariable(TIMEOUT_MS));
-            } catch (Exception e) {
-                //ignore and use default timeout
+            if (int.TryParse(GetEnvironmentVariable(TIMEOUT_MS), out int intValue))
+            {
+                timeoutMs = intValue;
             }
 
             // create endpoint
