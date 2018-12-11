@@ -31,19 +31,12 @@ namespace SignalFx.LambdaWrapper
 
         public HttpClientWrapper(Config config = null, HttpMessageHandler handler = null, bool disposeHandler = false)
         {
-            try
-            {
-                _config = config ?? new Config();
-                _httpClient = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
-                _httpClient.BaseAddress = _config.BaseAddress;
-                _httpClient.Timeout = _config.Timeout;
-                ServicePointManager.FindServicePoint(_config.BaseAddress).ConnectionLeaseTimeout = (int)_config.ConnectionLeaseTimeout.TotalMilliseconds;
-                ServicePointManager.DnsRefreshTimeout = (int)_config.DnsRefreshTimeout.TotalMilliseconds;
-            }
-            catch(Exception exception)
-            {
-                LambdaLogger.Log($"[Error] exception in {nameof(HttpClientWrapper)} constructor.{Environment.NewLine}{exception}{Environment.NewLine}");
-            }
+            _config = config ?? new Config();
+            _httpClient = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
+            _httpClient.BaseAddress = _config.BaseAddress;
+            _httpClient.Timeout = _config.Timeout;
+            ServicePointManager.FindServicePoint(_config.BaseAddress).ConnectionLeaseTimeout = (int)_config.ConnectionLeaseTimeout.TotalMilliseconds;
+            ServicePointManager.DnsRefreshTimeout = (int)_config.DnsRefreshTimeout.TotalMilliseconds;
         }
 
         ~HttpClientWrapper()

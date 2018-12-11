@@ -13,8 +13,13 @@ namespace SignalFx.LambdaWrapper.Extensions
     public static class WrapperExtensions
     {
         private static readonly string WrapperVersion = "0.1.0";
-        private static readonly string CustomMetricPrefix = "sfx_metric-";
+        private static readonly string CustomMetricPrefix = "sfx_metric_datapoint-";
 
+        /// <summary>
+        /// This HttpResponse extension method is for sending custom metric datapoints from within controller methods. This method adds a custom metric datapoint to the response headers.
+        /// </summary>
+        /// <param name="httpResponse"></param>
+        /// <param name="dataPoint"></param>
         public static void AddMetricDataPoint(this HttpResponse httpResponse, DataPoint dataPoint)
         {
             if (dataPoint == null)
@@ -27,24 +32,23 @@ namespace SignalFx.LambdaWrapper.Extensions
                 LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetricDataPoint)} cannot be null or whitespace.{Environment.NewLine}");
                 return;
             }
+            // Unique header key per serialized datapoint.
             string headerKey = CustomMetricPrefix + Guid.NewGuid();
             httpResponse.Headers.Append(headerKey, JsonConvert.SerializeObject(dataPoint));
         }
 
-        internal static IEnumerable<DataPoint> GetCustomMetricDataPoints(this IHttpResponseFeature responseFeature, ILambdaContext lambdaContext)
+        // This IHttpResponseFeature extension method gets custom metric datapoints from the headers of a IHttpResponseFeature object.
+        internal static List<DataPoint> GetCustomMetricDataPoints(this IHttpResponseFeature responseFeature)
         {
             var dataPoints = from metricDataPointHeader in
                                 (from header in responseFeature.Headers
                                  where header.Key.StartsWith(CustomMetricPrefix, StringComparison.Ordinal)
                                  select header)
                              select JsonConvert.DeserializeObject<DataPoint>(metricDataPointHeader.Value);
-            foreach (var dataPoint in dataPoints)
-            {
-                dataPoint.AddDefaultDimensions(lambdaContext);
-            }
-            return dataPoints;
+            return dataPoints.ToList();
         }
 
+        // This IHttpResponseFeature extension method removes custom metric datapoints headers from a IHttpResponseFeature object.
         internal static void RemoveCustomMetricDataPointHeaders(this IHttpResponseFeature responseFeature)
         {
             var metricDataPointHeaders = from header in responseFeature.Headers
