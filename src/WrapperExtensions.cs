@@ -19,36 +19,15 @@ namespace SignalFx.LambdaWrapper.Extensions
         {
             if (dataPoint == null)
             {
-                LambdaLogger.Log($"[Error] adding metric to response. Argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null.\n");
+                LambdaLogger.Log($"[Error] adding metric to response. Argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null.{Environment.NewLine}");
                 return;
             }
             if (string.IsNullOrWhiteSpace(dataPoint.metric))
             {
-                LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null or whitespace.\n");
+                LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null or whitespace.{Environment.NewLine}");
                 return;
             }
             string headerKey = CustomMetricPrefix + Guid.NewGuid();
-            //string prefixedIntValue    = dataPoint.value.intValueSpecified    ? "1" + dataPoint.value.intValue    : "0";
-            //string prefixedDoubleValue = dataPoint.value.doubleValueSpecified ? "1" + dataPoint.value.doubleValue : "0";
-            //string prefixedStrValue    = dataPoint.value.strValueSpecified    ? "1" + dataPoint.value.strValue    : "0";
-            //string prefixedMetricType  = dataPoint.metricTypeSpecified        ? "1" + dataPoint.metricType        : "0";
-            //string prefixedSource      = dataPoint.sourceSpecified            ? "1" + dataPoint.source            : "0";
-            //string prefixedTimestamp   = dataPoint.timestampSpecified         ? "1" + dataPoint.timestamp         : "0";
-
-            //// memory_usage-150-166.67-1high-1Counter-1host-1666666
-            //string headerValue = Regex.Replace(dataPoint.metric,    "-", @"\-") + "-" + 
-            //                     Regex.Replace(prefixedIntValue,    "-", @"\-") + "-" + 
-            //                     Regex.Replace(prefixedDoubleValue, "-", @"\-") + "-" + 
-            //                     Regex.Replace(prefixedStrValue,    "-", @"\-") + "-" + 
-            //                     Regex.Replace(prefixedMetricType,  "-", @"\-") + "-" + 
-            //                     Regex.Replace(prefixedSource,      "-", @"\-") + "-" + 
-            //                     Regex.Replace(prefixedTimestamp,   "-", @"\-");
-            //headerValue = Regex.Replace(headerValue, ",", @"\,");
-            //httpResponse.Headers.Append(headerKey, JsonConvert.SerializeObject(dataPoint));
-            //if (dataPoint.dimensions.Count != 0)
-            //{
-            //    httpResponse.Headers.AppendCommaSeparatedValues(headerKey, dataPoint.dimensions.Select(dimension => dimension.key + "=" + dimension.value).ToArray());
-            //}
             httpResponse.Headers.Append(headerKey, JsonConvert.SerializeObject(dataPoint));
         }
 
@@ -59,7 +38,6 @@ namespace SignalFx.LambdaWrapper.Extensions
                                  where header.Key.StartsWith(CustomMetricPrefix, StringComparison.Ordinal)
                                  select header)
                              select JsonConvert.DeserializeObject<DataPoint>(metricDataPointHeader.Value);
-            //select NewCustomMetricDataPoint(lambdaContext, metricHeader.Key, responseFeature.Headers.GetCommaSeparatedValues(metricHeader.Key));
             foreach (var dataPoint in dataPoints)
             {
                 dataPoint.AddDefaultDimensions(lambdaContext);
@@ -77,48 +55,6 @@ namespace SignalFx.LambdaWrapper.Extensions
                 responseFeature.Headers.Remove(metricDataPointHeader.Key);
             }
         }
-
-        //private static DataPoint NewCustomMetricDataPoint(ILambdaContext lambdaContext, String metricHeaderKey, string[] dimensionStrings)
-        //{
-        //    // 
-        //    var splits = Regex.Split(metricHeaderKey.Substring(CustomMetricPrefix.Length), @"(?<!%)-");
-        //    DataPoint dataPoint = new DataPoint
-        //    {
-        //        metric = splits[0],
-        //        value = NewDatum(splits[1]),
-        //        metricType = (MetricType)Enum.Parse(typeof(MetricType), splits[2])
-        //    };
-        //    dataPoint.AddDefaultDimensions(lambdaContext);
-        //    foreach (var dimensionString in dimensionStrings)
-        //    {
-        //        splits = Regex.Split(dimensionString, @"(?<!%)=");
-        //        dataPoint.dimensions.Add(new Dimension
-        //        {
-        //            key = splits[0],
-        //            value = splits[1]
-        //        });
-        //    }
-        //    return dataPoint;
-        //}
-
-        //private static Datum NewDatum(String value)
-        //{
-        //    Datum datum = new Datum();
-        //    if (int.TryParse(value, out int intValue))
-        //    {
-        //        datum.intValue = intValue;
-
-        //    }
-        //    else if (double.TryParse(value, out double doubleValue))
-        //    {
-        //        datum.doubleValue = doubleValue;
-        //    }
-        //    else
-        //    {
-        //        datum.strValue = value;
-        //    }
-        //    return datum;
-        //}
 
         // AddDefaultDimensions adds metric dimensions derived from AWS Lambda ARN to datapoint. Formats and examples of AWS Lambda ARNs are in the
         // AWS Lambda (Lambda) section at https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-lambda

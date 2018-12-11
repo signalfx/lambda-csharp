@@ -37,13 +37,13 @@ namespace SignalFx.LambdaWrapper
                 if (!apiGatewayProxyResponse.IsSuccessStatusCode())
                 {
                     dataPoints.Add(NewCounterDatapoint("function.errors", lambdaContext));
-                    LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {apiGatewayProxyResponse.StatusCode}. Response body: {apiGatewayProxyResponse.Body}\n");
+                    LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {apiGatewayProxyResponse.StatusCode}. Response body: {apiGatewayProxyResponse.Body}{Environment.NewLine}");
                 }
             }
             catch (Exception exception)
             {
                 dataPoints.Add(NewCounterDatapoint("function.errors", lambdaContext));
-                LambdaLogger.Log($"[Error] invoking lambda function.\n{exception.ToString()}\n");
+                LambdaLogger.Log($"[Error] invoking lambda function.{Environment.NewLine}{exception.ToString()}{Environment.NewLine}");
             }
             finally
             {
@@ -52,7 +52,7 @@ namespace SignalFx.LambdaWrapper
                     if (!httpResponseMessage.IsSuccessStatusCode)
                     {
                         var content = await httpResponseMessage.Content.ReadAsStringAsync(); 
-                        LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {(int)httpResponseMessage.StatusCode}. Response content: {content}\n");
+                        LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {(int)httpResponseMessage.StatusCode}. Response content: {content}{Environment.NewLine}");
                     }
                 }
             }

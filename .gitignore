@@ -2,3 +2,4 @@
 bin/
 lambda-csharp.sln
 obj/
+*.nupkg

@@ -13,24 +13,22 @@ namespace SignalFx.LambdaWrapper
 {
     public class HttpClientWrapper
     {
-        private static readonly string DefaultBaseAddressUrl = "https://ingest.signalfx.com/";
+        private static readonly string DefaultBaseAddressUrl = "https://ingest.signalfx.com";
         private static readonly string DefaultDataPointIngestPath = "v2/datapoint";
         private static readonly string AuthTokenHeaderName = "X-Sf-Token";
         private readonly HttpClient _httpClient;
         private readonly Config _config;
-
+        
         public class Config
         {
             public string   AuthToken              { get; set; } = GetStringEnvironmentVariable("SIGNALFX_AUTH_TOKEN");
-            public Uri      BaseAddress            { get; set; } = new Uri(DefaultBaseAddressUrl);
-            public Uri      DataPointEndpoint      { get; set; } = new Uri(DefaultBaseAddressUrl + DefaultDataPointIngestPath);
+            public Uri      BaseAddress            { get; set; } = new Uri(GetStringEnvironmentVariable("SIGNALFX_INGEST_ENDPOINT_BASE_ADDRESS", DefaultBaseAddressUrl));
+            public Uri      DataPointIngestPath    { get; set; } = new Uri(GetStringEnvironmentVariable("SIGNALFX_INGEST_ENDPOINT_PATH", DefaultDataPointIngestPath));
             public TimeSpan Timeout                { get; set; } = TimeSpan.FromSeconds(GetDoubleEnvironmentVariable("SIGNALFX_SEND_TIMEOUT_SECONDS", 5));
             public TimeSpan ConnectionLeaseTimeout { get; set; } = TimeSpan.FromSeconds(5);
             public TimeSpan DnsRefreshTimeout      { get; set; } = TimeSpan.FromSeconds(5);
         }
 
-        // https://www.thomaslevesque.com/tag/httpmessagehandler/
-        // https://stackify.com/net-core-vs-net-framework/
         public HttpClientWrapper(Config config = null, HttpMessageHandler handler = null, bool disposeHandler = false)
         {
             _config = config ?? new Config();
@@ -52,7 +50,7 @@ namespace SignalFx.LambdaWrapper
             dataPointUploadMessage.datapoints.AddRange(dataPoints);
             using (var httpContent = NewHttpContent(_config, dataPointUploadMessage))
             {
-                return await _httpClient.PostAsync(_config.DataPointEndpoint, httpContent);
+                return await _httpClient.PostAsync(_config.DataPointIngestPath, httpContent);
             }
         }
 
@@ -70,20 +68,20 @@ namespace SignalFx.LambdaWrapper
 
         private static string GetStringEnvironmentVariable(string variable, string defaultValue = null)
         {
-            var authToken = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.Process);
-            if (string.IsNullOrWhiteSpace(authToken))
+            var stringValue = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.Process);
+            if (string.IsNullOrWhiteSpace(stringValue))
             {
                 if (defaultValue == null)
                 {
-                    LambdaLogger.Log($"[Error] environment variable {variable} is not set.\n");
+                    LambdaLogger.Log($"[Error] environment variable {variable} is not set.{Environment.NewLine}");
                 }
                 else
                 {
-                    authToken = defaultValue;
-                    LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value instead.\n");
+                    stringValue = defaultValue;
+                    LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value instead.{Environment.NewLine}");
                 }
             }
-            return authToken;
+            return stringValue;
         }
 
         private static double GetDoubleEnvironmentVariable(string variable, double defaultValue)
@@ -94,7 +92,7 @@ namespace SignalFx.LambdaWrapper
             }
             else
             {
-                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value of {defaultValue} instead.\n");
+                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value of {defaultValue} instead.{Environment.NewLine}");
                 return defaultValue;
             }
         }
