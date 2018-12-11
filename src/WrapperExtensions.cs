@@ -12,19 +12,19 @@ namespace SignalFx.LambdaWrapper.Extensions
 {
     public static class WrapperExtensions
     {
-        private static readonly string WrapperVersion = "1.0.0";
+        private static readonly string WrapperVersion = "0.1.0";
         private static readonly string CustomMetricPrefix = "sfx_metric-";
 
         public static void AddMetric(this HttpResponse httpResponse, DataPoint dataPoint)
         {
             if (dataPoint == null)
             {
-                LambdaLogger.Log($"ERROR adding metric to response. Argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null.");
+                LambdaLogger.Log($"[Error] adding metric to response. Argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null.\n");
                 return;
             }
             if (string.IsNullOrWhiteSpace(dataPoint.metric))
             {
-                LambdaLogger.Log($"ERROR adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null or whitespace.");
+                LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(WrapperExtensions.AddMetric)} cannot be null or whitespace.\n");
                 return;
             }
             string headerKey = CustomMetricPrefix + Guid.NewGuid();

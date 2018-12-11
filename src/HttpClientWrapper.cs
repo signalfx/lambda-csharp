@@ -75,12 +75,12 @@ namespace SignalFx.LambdaWrapper
             {
                 if (defaultValue == null)
                 {
-                    LambdaLogger.Log($"ERROR environment variable {variable} is not set.");
+                    LambdaLogger.Log($"[Error] environment variable {variable} is not set.\n");
                 }
                 else
                 {
                     authToken = defaultValue;
-                    LambdaLogger.Log($"WARNING environment variable {variable} is not set. Using default value instead.");
+                    LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value instead.\n");
                 }
             }
             return authToken;
@@ -94,7 +94,7 @@ namespace SignalFx.LambdaWrapper
             }
             else
             {
-                LambdaLogger.Log($"WARNING environment variable {variable} is not set. Using default value of {defaultValue} instead.");
+                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value of {defaultValue} instead.\n");
                 return defaultValue;
             }
         }
