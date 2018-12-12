@@ -40,7 +40,7 @@ namespace SignalFx.LambdaWrapper
         private static HttpContent NewHttpContent(DataPointUploadMessage dataPointUploadMessage)
         {
             var memoryStream = new MemoryStream();
-            Serializer.Serialize<DataPointUploadMessage>(memoryStream, dataPointUploadMessage);
+            Serializer.Serialize(memoryStream, dataPointUploadMessage);
             memoryStream.Flush();
             memoryStream.Seek(0, SeekOrigin.Begin);
             HttpContent httpContent = new StreamContent(memoryStream);

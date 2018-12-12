@@ -12,24 +12,23 @@ using System.Diagnostics;
 
 namespace SignalFx.LambdaWrapper
 {
+    /// <inheritdoc />
     /// <summary>
-    /// APIGatewayProxyFunctionWrapper extends ApiGatewayProxyFunction to provide monitoring functionality. ApiGatewayProxyFunction and 
-    /// therefore APIGatewayProxyFunctionWrapper is implemented in a ASP.NET Core Web API. The derived class implements
-    /// the Init method similar to Main function in the ASP.NET Core. The function handler for the Lambda function will point
-    /// to the APIGatewayProxyFunctionWrapper class FunctionHandlerAsync method.
+    /// APIGatewayProxyFunctionWrapper extends ApiGatewayProxyFunction to provide monitoring functionality. Users should
+    /// extend APIGatewayProxyFunctionWrapper and implement the Init method similar to Main function in the ASP.NET Core.
+    /// The function handler for the Lambda function will point to the APIGatewayProxyFunctionWrapper class FunctionHandlerAsync
+    /// method.
     /// </summary>
     public abstract class APIGatewayProxyFunctionWrapper : APIGatewayProxyFunction
     {
-        protected HttpClientWrapper HttpClientWrapper { get; set; } = new HttpClientWrapper();
-        private bool isColdStart = true;
+        private readonly HttpClientWrapper _httpClientWrapper = new HttpClientWrapper();
+        private bool _isColdStart = true;
 
+        /// <inheritdoc />
         /// <summary>
         /// This overriding method is what the Lambda function handler points to. This method posts defaults metric datapoints to SignalFx
         /// and delegates to the overriden base method.
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="lambdaContext"></param>
-        /// <returns></returns>        
         [LambdaSerializer(typeof(JsonSerializer))]
         public override async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext lambdaContext)
         {
@@ -37,26 +36,26 @@ namespace SignalFx.LambdaWrapper
             var dataPoints = new List<DataPoint>();
             try
             {
-                dataPoints.Add(NewDefaultCounterDatapoint("function.invocations", lambdaContext));
-                if (isColdStart)
+                dataPoints.Add(NewDefaultCounterDataPoint("function.invocations", lambdaContext));
+                if (_isColdStart)
                 {
-                    dataPoints.Add(NewDefaultCounterDatapoint("function.cold_starts", lambdaContext));
-                    isColdStart = false;
+                    dataPoints.Add(NewDefaultCounterDataPoint("function.cold_starts", lambdaContext));
+                    _isColdStart = false;
                 }
                 var watch = Stopwatch.StartNew();
                 apiGatewayProxyResponse = await base.FunctionHandlerAsync(request, lambdaContext);
                 watch.Stop();
-                dataPoints.Add(NewDefaultGaugeDatapoint("function.duration", watch.Elapsed.TotalSeconds, lambdaContext));
+                dataPoints.Add(NewDefaultGaugeDataPoint("function.duration", watch.Elapsed.TotalSeconds, lambdaContext));
                 if (!apiGatewayProxyResponse.IsSuccessStatusCode())
                 {
-                    dataPoints.Add(NewDefaultCounterDatapoint("function.errors", lambdaContext));
+                    dataPoints.Add(NewDefaultCounterDataPoint("function.errors", lambdaContext));
                     LambdaLogger.Log($"[Error] invoking lambda function. Http status code: {apiGatewayProxyResponse.StatusCode}. Response body: {apiGatewayProxyResponse.Body}{Environment.NewLine}");
                 }
             }
             catch (Exception exception)
             {
-                dataPoints.Add(NewDefaultCounterDatapoint("function.errors", lambdaContext));
-                LambdaLogger.Log($"[Error] invoking lambda function.{Environment.NewLine}{exception.ToString()}{Environment.NewLine}");
+                dataPoints.Add(NewDefaultCounterDataPoint("function.errors", lambdaContext));
+                LambdaLogger.Log($"[Error] invoking lambda function.{Environment.NewLine}{exception}{Environment.NewLine}");
             }
             finally
             {
@@ -65,14 +64,12 @@ namespace SignalFx.LambdaWrapper
             return apiGatewayProxyResponse;
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// This overriding method is called after the APIGatewayProxyFunction has marshalled IHttpResponseFeature that came
+        /// This overriding method is called after the APIGatewayProxyFunction has marshaled IHttpResponseFeature that came
         /// back from making the request into ASP.NET Core into API Gateway's response object APIGatewayProxyResponse. It gets the
-        /// custom metric datapoints from the response headers, posts them to SignalFx and removes the headers.
+        /// user-defined custom metric datapoints from the response headers, posts them to SignalFx and removes the headers.
         /// </summary>
-        /// <param name="aspNetCoreResponseFeature"></param>
-        /// <param name="apiGatewayResponse"></param>
-        /// <param name="lambdaContext"></param>
         protected override void PostMarshallResponseFeature(IHttpResponseFeature aspNetCoreResponseFeature, APIGatewayProxyResponse apiGatewayResponse, ILambdaContext lambdaContext)
         {
             var dataPoints = aspNetCoreResponseFeature.GetCustomMetricDataPoints();
@@ -84,7 +81,7 @@ namespace SignalFx.LambdaWrapper
             aspNetCoreResponseFeature.RemoveCustomMetricDataPointHeaders();
         }
 
-        private DataPoint NewDefaultCounterDatapoint(string metricName, ILambdaContext lambdaContext) {
+        private static DataPoint NewDefaultCounterDataPoint(string metricName, ILambdaContext lambdaContext) {
             var dataPoint = new DataPoint
             {
                 metric = metricName,
@@ -95,7 +92,7 @@ namespace SignalFx.LambdaWrapper
             return dataPoint;
         }
 
-        private DataPoint NewDefaultGaugeDatapoint(string metricName, double value, ILambdaContext lambdaContext)
+        private static DataPoint NewDefaultGaugeDataPoint(string metricName, double value, ILambdaContext lambdaContext)
         {
             var dataPoint = new DataPoint
             {
@@ -109,7 +106,7 @@ namespace SignalFx.LambdaWrapper
 
         private void PostDataPoints(IEnumerable<DataPoint> dataPoints)
         {
-            using (var httpResponseMessage = HttpClientWrapper.PostDataPointsAsync(dataPoints).Result)
+            using (var httpResponseMessage = _httpClientWrapper.PostDataPointsAsync(dataPoints).Result)
             {
                 if (!httpResponseMessage.IsSuccessStatusCode)
                 {
@@ -118,7 +115,7 @@ namespace SignalFx.LambdaWrapper
                 }
                 else
                 {
-                    LambdaLogger.Log($"[Information] success posting metric datapoints.");
+                    LambdaLogger.Log("[Information] success posting metric datapoints.");
                 }
             }
         }
