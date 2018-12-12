@@ -137,7 +137,7 @@ public IEnumerable<string> Get()
     {
         metric = "mycontroller.get.invokes",
         metricType = MetricType.COUNTER,
-        value = new Datum()
+        value = new Datum
         {
             intValue = 1
         }
