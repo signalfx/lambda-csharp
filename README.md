@@ -13,33 +13,42 @@ Add the following package reference to your `.csproj` or `function.proj`
 ```
 
 
-### Using the Metric Wrapper
+### Using the Wrapper
 
-Create a MetricWrapper with the ExecutionContext
-Wrap your code in try-catch-finally, disposing of the wrapper finally.
+In the common Lambda implementation where you are required to define a Lambda handler method directly, you explicitly send metrics to SignalFx by creating a MetricWrapper with the ExecutionContext Wrap your code in try-catch-finally, disposing of the wrapper finally.
 ```cs
 using signalfxlambdawrapper
 
 ...
 
-    [FunctionName("HttpTrigger")]
-		public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log, ExecutionContext context)
-        {
-            log.Info("C# HTTP trigger function processed a request.");
-            MetricWrapper wrapper = new MetricWrapper(context);
-            try { 
-                ...
-                // your code
-                ...
-                return ResponseObject
-            } catch (Exception e) {
-              wrapper.Error();
-            } finally {
-              wrapper.Dispose();
-            }
-
-        }
+[FunctionName("HttpTrigger")]
+public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log, ExecutionContext context)
+{
+    log.Info("C# HTTP trigger function processed a request.");
+    MetricWrapper wrapper = new MetricWrapper(context);
+    try { 
+        ...
+        // your code
+        ...
+        return ResponseObject
+    } catch (Exception e) {
+      wrapper.Error();
+    } finally {
+      wrapper.Dispose();
+    }
+}
 ```
+In the `ASP.Net Core Web API with Lambda` implementation where you do not define the Lambda handler method directly but rather extend `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`, you simply extend `SignalFx.LambdaWrapper.APIGatewayProxyFunctionWrapper` instead in order to send metrics to SignalFx. No need to explicitly define logic for sending metrics.
+```cs
+public class LambdaEntryPoint : SignalFx.LambdaWrapper.APIGatewayProxyFunctionWrapper
+{
+    protected override void Init(IWebHostBuilder builder)
+    {
+      ...
+    }
+}
+```
+Note that `SignalFx.LambdaWrapper.APIGatewayProxyFunctionWrapper` extends `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`. Also, the lambda context object `Amazon.Lambda.Core.ILambdaContext` from which default metric dimensions are derived is not available in the Web API Controllers layer on down.
 
 ### Environment Variable
 Set the Lambda Function environment variables as follows:
@@ -81,7 +90,10 @@ The Lambda wrapper adds the following dimensions to all data points sent to Sign
 | function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx-lambda-0.0.5) |
 | metric_source | The literal value of 'lambda_wrapper' |
 
-### Sending a custom metric from the Lambda Function
+### Sending custom metric
+
+Below is an example of sending user-defined metrics (i.e. custom metrics) from withing a directly defined Lambda handler method. The lambda context object is available.
+
 ```cs
 using com.signalfuse.metrics.protobuf;
 
@@ -106,6 +118,32 @@ dp.dimensions.Add(dim);
 
 // send the metric
 MetricSender.sendMetric(dp);
+```
+
+Sending custom metric in the Web API Controller layer on down for `ASP.Net Core Web API with Lambda` implementations is curtailed by the fact that the lambda context object is not available. However, the SignalFx C# Lambda Wrapper provides extension method `SignalFx.LambdaWrapper.Extensions.WrapperExtensions.AddMetricDataPoint()` for type `Microsoft.AspNetCore.Http.HttpResponse` for exporting metric datapoints to SignalFx. Below is an example of sending metrics from within a Web API Controller method.
+
+```cs
+...
+using SignalFx.LambdaWrapper.Extensions;
+...
+[HttpGet]
+public IEnumerable<string> Get()
+{
+    ...
+    DataPoint dataPoint = new DataPoint()
+    {
+        metric = "mycontroller.get.invokes",
+        metricType = MetricType.COUNTER,
+        value = new Datum()
+        {
+            intValue = 1
+        }
+    };
+    var response = Request.HttpContext.Response;
+    response.AddMetricDataPoint(dataPoint);
+    ...
+}
+...
 ```
 
 ### Testing locally.
