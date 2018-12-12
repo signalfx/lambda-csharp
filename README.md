@@ -63,6 +63,8 @@ Set the Lambda Function environment variables as follows:
  SIGNALFX_API_PORT=[443]
  SIGNALFX_API_SCHEME=[https]
  SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
+ CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
+ DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
 ```
 
 ### Metrics and dimensions sent by the wrapper
@@ -124,6 +126,7 @@ Sending custom metric in the Web API Controller layer on down for `ASP.Net Core 
 
 ```cs
 ...
+using com.signalfuse.metrics.protobuf;
 using SignalFx.LambdaWrapper.Extensions;
 ...
 [HttpGet]

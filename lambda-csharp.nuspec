@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>signalfx-lambda-wrapper</id>
-    <version>0.1.6-prelease</version>
+    <version>0.1.7-prelease</version>
     <title>SignalFx C# Lambda Wrapper</title>
     <authors>SignalFx</authors>
     <owners>SignalFx</owners>
