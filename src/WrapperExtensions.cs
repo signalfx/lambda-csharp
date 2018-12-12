@@ -68,7 +68,6 @@ namespace SignalFx.LambdaWrapper.Extensions
             dataPoint.dimensions.Add(new Dimension { key = "aws_function_name", value = lambdaContext.FunctionName });
             dataPoint.dimensions.Add(new Dimension { key = "aws_function_version", value = lambdaContext.FunctionVersion });
             dataPoint.dimensions.Add(new Dimension { key = "metric_source", value = "lambda_wrapper" });
-          
             if (arnSubstrings.Length > 3)
             {
                 dataPoint.dimensions.Add(new Dimension { key = "aws_region", value = arnSubstrings[3] });
@@ -93,7 +92,6 @@ namespace SignalFx.LambdaWrapper.Extensions
                 dataPoint.dimensions.Add(new Dimension { key = "event_source_mappings", value = arnSubstrings[6] });
                 dataPoint.dimensions.Add(new Dimension { key = "lambda_arn", value = lambdaContext.InvokedFunctionArn });
             }
-
             string awsExecutionEnvironment = Environment.GetEnvironmentVariable("AWS_EXECUTION_ENVIRONMENT");
             if (!string.IsNullOrEmpty(awsExecutionEnvironment))
             {

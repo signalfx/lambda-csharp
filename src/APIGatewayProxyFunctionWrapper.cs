@@ -24,7 +24,7 @@ namespace SignalFx.LambdaWrapper
         private bool isColdStart = true;
 
         /// <summary>
-        /// This overriding method is what the Lambda function handler points to. This method posts defaults metric datapoints to signalfx
+        /// This overriding method is what the Lambda function handler points to. This method posts defaults metric datapoints to SignalFx
         /// and delegates to the overriden base method.
         /// </summary>
         /// <param name="request"></param>

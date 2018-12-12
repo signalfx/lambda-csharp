@@ -133,7 +133,7 @@ using SignalFx.LambdaWrapper.Extensions;
 public IEnumerable<string> Get()
 {
     ...
-    DataPoint dataPoint = new DataPoint()
+    DataPoint dataPoint = new DataPoint
     {
         metric = "mycontroller.get.invokes",
         metricType = MetricType.COUNTER,
