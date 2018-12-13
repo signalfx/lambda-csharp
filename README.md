@@ -122,7 +122,7 @@ dp.dimensions.Add(dim);
 MetricSender.sendMetric(dp);
 ```
 
-Sending custom metric in the Web API Controller layer on down for `ASP.Net Core Web API with Lambda` implementations is curtailed by the fact that the lambda context object is not available. However, the SignalFx C# Lambda Wrapper provides extension method `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.WrapperExtensions.AddMetricDataPoint()` for type `Microsoft.AspNetCoreServer.Http.HttpResponse` for exporting metric datapoints to SignalFx. Below is an example of sending metrics from within a Web API Controller method.
+Sending custom metric in the Web API Controller layer on down for `ASP.Net Core Web API with Lambda` implementations is curtailed by the fact that the lambda context object is not available. However, the SignalFx C# Lambda Wrapper provides extension method `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` for type `Microsoft.AspNetCoreServer.Http.HttpResponse` for exporting metric datapoints to SignalFx. Below is an example of sending metrics from within a Web API Controller method.
 
 ```cs
 ...

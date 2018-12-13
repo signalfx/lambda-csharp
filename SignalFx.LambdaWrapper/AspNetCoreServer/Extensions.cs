@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
-    public static class WrapperExtensions
+    public static class Extensions
     {
         private const string WrapperVersion = "0.1.0";
         private const string CustomMetricPrefix = "sfx_metric_datapoint-";

@@ -52,7 +52,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 }
                 else
                 {
-                    LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue} instead.{Environment.NewLine}");
+                    LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
                     stringValue = defaultValue;
                 }
                 return stringValue;
@@ -64,7 +64,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 {
                     return doubleValue;
                 }
-                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue} instead.{Environment.NewLine}");
+                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
                 return defaultValue;
             }
 
@@ -74,7 +74,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 {
                     return intValue;
                 }
-                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue} instead.{Environment.NewLine}");
+                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
                 return defaultValue;
             }
         }
