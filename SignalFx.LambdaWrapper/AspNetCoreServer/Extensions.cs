@@ -12,7 +12,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
     public static class Extensions
     {
-        private const string WrapperVersion = "2.0.1";
+        public const string WrapperVersion = "2.0.1";
         private const string CustomMetricPrefix = "sfx_metric_datapoint-";
 
         /// <summary>

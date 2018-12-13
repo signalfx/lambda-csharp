@@ -53,19 +53,22 @@ Note that `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrappe
 ### Environment Variable
 Set the Lambda Function environment variables as follows:
 
-1) Set authentication token:
-```
+1 ) Set authentication token:
+```text
  SIGNALFX_AUTH_TOKEN=signalfx token
 ```
-2) Optional parameters available:
-```
+2 ) Optional parameters available:
+```text
  SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
  SIGNALFX_API_PORT=[443]
  SIGNALFX_API_SCHEME=[https]
  SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
+```
+3 ) Additional optional parameters for ASP.Net Core Web API with Lambda:
+```text
  CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
  DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
-```
+``` 
 
 ### Metrics and dimensions sent by the wrapper
 The Lambda wrapper sends the following metrics to SignalFx:

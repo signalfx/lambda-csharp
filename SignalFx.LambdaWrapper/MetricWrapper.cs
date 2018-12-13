@@ -26,7 +26,8 @@ namespace SignalFx.LambdaWrapper
         protected static string METRIC_SOURCE = "aws_function_wrapper";
         protected static string REGION_DIMENSION = "aws_region";
         protected static string ACCOUNT_ID_DIMENSION = "aws_account_id";
-        protected static string WRAPPER_VERSION = "1.0.0";
+        //TODO: Find appropriate home for the shared field WrapperVersion
+        protected static string WRAPPER_VERSION = AspNetCoreServer.Extensions.WrapperVersion;
         
         private readonly System.Diagnostics.Stopwatch watch;
         private readonly IDictionary<string, string> defaultDimensions;
