@@ -9,7 +9,7 @@ The SignalFx C# Lambda Wrapper is a wrapper around an Lambda Function, used to i
 ### Install via NuGet
 Add the following package reference to your `.csproj` or `function.proj`
 ```xml
-  <PackageReference Include="SignalFx.LambdaWrapper" Version="2.0.0"/>
+  <PackageReference Include="signalfx-lambda-functions" Version="2.0.1"/>
 ```
 
 

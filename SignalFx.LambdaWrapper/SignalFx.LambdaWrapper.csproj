@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>2.0.1-prerelease</Version>
+        <Version>2.0.1</Version>
         <Title>SignalFx AWS Lambda Wrapper C#</Title>
         <Company>SignalFx</Company>
         <Authors>SignalFx</Authors>
         <Copyright>Copyright © 2014-2018 SignalFx</Copyright>
         <ProjectUrl>https://github.com/signalfx/lambda-csharp</ProjectUrl>
+        <RepositoryUrl>https://github.com/signalfx/lambda-csharp</RepositoryUrl>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageId>SignalFx.LambdaWrapper</PackageId>
+        <PackageId>signalfx-lambda-functions</PackageId>
         <PackageLicenseUrl>https://github.com/signalfx/lambda-csharp/blob/master/LICENSE</PackageLicenseUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes>Added support for ASP.NET Core Web API.</PackageReleaseNotes>
