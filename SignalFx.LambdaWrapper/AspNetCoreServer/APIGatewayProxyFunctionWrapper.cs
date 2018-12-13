@@ -44,17 +44,17 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 var watch = Stopwatch.StartNew();
                 apiGatewayProxyResponse = await base.FunctionHandlerAsync(request, lambdaContext);
                 watch.Stop();
-                dataPoints.Add(NewDefaultGaugeDataPoint("function.duration", watch.Elapsed.TotalSeconds, lambdaContext));
+                dataPoints.Add(NewDefaultGaugeDataPoint("function.duration", watch.Elapsed.TotalMilliseconds, lambdaContext));
                 if (!apiGatewayProxyResponse.IsSuccessStatusCode())
                 {
                     dataPoints.Add(NewDefaultCounterDataPoint("function.errors", lambdaContext));
-                    LambdaLogger.Log($"[Error] invoking lambda function. Http status code: {apiGatewayProxyResponse.StatusCode}. Response body: {apiGatewayProxyResponse.Body}{Environment.NewLine}");
+                    LambdaLogger.Log($"[Error] {typeof(APIGatewayProxyFunctionWrapper).FullName}: invoking lambda function. Http status code: {apiGatewayProxyResponse.StatusCode}. Response body: {apiGatewayProxyResponse.Body}{Environment.NewLine}");
                 }
             }
             catch (Exception exception)
             {
                 dataPoints.Add(NewDefaultCounterDataPoint("function.errors", lambdaContext));
-                LambdaLogger.Log($"[Error] invoking lambda function.{Environment.NewLine}{exception}{Environment.NewLine}");
+                LambdaLogger.Log($"[Error] {typeof(APIGatewayProxyFunctionWrapper).FullName}: invoking lambda function.{Environment.NewLine}{exception}{Environment.NewLine}");
             }
             finally
             {
@@ -107,15 +107,9 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
         {
             using (var httpResponseMessage = _httpClientWrapper.PostDataPointsAsync(dataPoints).Result)
             {
-                if (!httpResponseMessage.IsSuccessStatusCode)
-                {
-                    var content = httpResponseMessage.Content.ReadAsStringAsync().Result;
-                    LambdaLogger.Log($"[Error] posting metric datapoints. Http status code: {(int)httpResponseMessage.StatusCode}. Response content: {content}{Environment.NewLine}");
-                }
-                else
-                {
-                    LambdaLogger.Log("[Information] success posting metric datapoints.");
-                }
+                if (httpResponseMessage.IsSuccessStatusCode) return;
+                var content = httpResponseMessage.Content.ReadAsStringAsync().Result;
+                LambdaLogger.Log($"[Error] {typeof(APIGatewayProxyFunctionWrapper).FullName}: posting metric datapoints. Http status code: {(int)httpResponseMessage.StatusCode}. Response content: {content}{Environment.NewLine}");
             }
         }
 

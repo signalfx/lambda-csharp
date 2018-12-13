@@ -12,7 +12,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
     public static class Extensions
     {
-        private const string WrapperVersion = "0.1.0";
+        private const string WrapperVersion = "2.0.1";
         private const string CustomMetricPrefix = "sfx_metric_datapoint-";
 
         /// <summary>
@@ -24,12 +24,12 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
         {
             if (dataPoint == null)
             {
-                LambdaLogger.Log($"[Error] adding metric to response. Argument {nameof(dataPoint)} of method {nameof(AddMetricDataPoint)} cannot be null.{Environment.NewLine}");
+                LambdaLogger.Log($"[Error] {typeof(Extensions).FullName}: adding metric to response. Argument {nameof(dataPoint)} of method {nameof(AddMetricDataPoint)} cannot be null.{Environment.NewLine}");
                 return;
             }
             if (string.IsNullOrWhiteSpace(dataPoint.metric))
             {
-                LambdaLogger.Log($"[Error] adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(AddMetricDataPoint)} cannot be null or whitespace.{Environment.NewLine}");
+                LambdaLogger.Log($"[Error] {typeof(Extensions).FullName}: adding metric to response. Property {nameof(dataPoint.metric)} of argument {nameof(dataPoint)} of method {nameof(AddMetricDataPoint)} cannot be null or whitespace.{Environment.NewLine}");
                 return;
             }
             // Unique header key per serialized datapoint.

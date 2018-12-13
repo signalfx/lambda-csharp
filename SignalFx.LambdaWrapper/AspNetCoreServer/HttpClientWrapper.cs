@@ -29,7 +29,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
 
         internal async Task<HttpResponseMessage> PostDataPointsAsync(IEnumerable<DataPoint> dataPoints)
         {
-            DataPointUploadMessage dataPointUploadMessage = new DataPointUploadMessage();
+            var dataPointUploadMessage = new DataPointUploadMessage();
             dataPointUploadMessage.datapoints.AddRange(dataPoints);
             using (var httpContent = NewHttpContent(dataPointUploadMessage))
             {

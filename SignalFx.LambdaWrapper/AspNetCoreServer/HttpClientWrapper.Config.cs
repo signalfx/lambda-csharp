@@ -37,7 +37,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 }
                 catch (Exception exception)
                 {
-                    LambdaLogger.Log($"[Error] constructing URI.{Environment.NewLine}{exception}{Environment.NewLine}");
+                    LambdaLogger.Log($"[Error] {typeof(Config).FullName}: constructing URI.{Environment.NewLine}{exception}{Environment.NewLine}");
                 }
                 return uri;
             }
@@ -48,11 +48,11 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 if (!string.IsNullOrWhiteSpace(stringValue)) return stringValue;
                 if (defaultValue == null)
                 {
-                    LambdaLogger.Log($"[Error] environment variable {variable} is not set.{Environment.NewLine}");
+                    LambdaLogger.Log($"[Error] {typeof(Config).FullName}: environment variable {variable} is not set.{Environment.NewLine}");
                 }
                 else
                 {
-                    LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
+                    LambdaLogger.Log($"[Warning] {typeof(Config).FullName}: environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
                     stringValue = defaultValue;
                 }
                 return stringValue;
@@ -64,7 +64,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 {
                     return doubleValue;
                 }
-                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
+                LambdaLogger.Log($"[Warning] {typeof(Config).FullName}: environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
                 return defaultValue;
             }
 
@@ -74,7 +74,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                 {
                     return intValue;
                 }
-                LambdaLogger.Log($"[Warning] environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
+                LambdaLogger.Log($"[Warning] {typeof(Config).FullName}: environment variable {variable} is not set. Using default value {defaultValue}.{Environment.NewLine}");
                 return defaultValue;
             }
         }
