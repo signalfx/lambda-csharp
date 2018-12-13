@@ -1,9 +1,8 @@
-﻿
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Security;
 
-namespace Metrics.SignalFx.Helpers
+namespace SignalFx.LambdaWrapper.Helpers
 {
     public class WebRequestor : IWebRequestor
     {

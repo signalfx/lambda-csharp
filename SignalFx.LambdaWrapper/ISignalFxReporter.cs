@@ -1,6 +1,6 @@
 ﻿using com.signalfuse.metrics.protobuf;
 
-namespace signalfxlambdawrapper
+namespace SignalFx.LambdaWrapper
 {
     /// <summary>
     /// Base interface for the reporter that actually transmits reporting data

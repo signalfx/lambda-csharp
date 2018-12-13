@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using com.signalfuse.metrics.protobuf;
 using Amazon.Lambda.Core;
+using com.signalfuse.metrics.protobuf;
 
-namespace signalfxlambdawrapper
+namespace SignalFx.LambdaWrapper
 {
     public class MetricWrapper : IDisposable
     {
@@ -26,7 +26,8 @@ namespace signalfxlambdawrapper
         protected static string METRIC_SOURCE = "aws_function_wrapper";
         protected static string REGION_DIMENSION = "aws_region";
         protected static string ACCOUNT_ID_DIMENSION = "aws_account_id";
-        protected static string WRAPPER_VERSION = "1.0.0";
+        //TODO: Find appropriate home for the shared field WrapperVersion
+        protected static string WRAPPER_VERSION = AspNetCoreServer.Extensions.WrapperVersion;
         
         private readonly System.Diagnostics.Stopwatch watch;
         private readonly IDictionary<string, string> defaultDimensions;
@@ -50,10 +51,9 @@ namespace signalfxlambdawrapper
                              String authToken)
         {
             int timeoutMs = 300; //default timeout 300ms
-            try {
-                timeoutMs = Int32.Parse(GetEnvironmentVariable(TIMEOUT_MS));
-            } catch (Exception e) {
-                //ignore and use default timeout
+            if (int.TryParse(GetEnvironmentVariable(TIMEOUT_MS), out int intValue))
+            {
+                timeoutMs = intValue;
             }
 
             // create endpoint

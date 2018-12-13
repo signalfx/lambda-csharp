@@ -1,5 +1,5 @@
 ﻿
-namespace Metrics.SignalFx.Helpers
+namespace SignalFx.LambdaWrapper.Helpers
 {
     /// <summary>
     /// A factory for creating IWebRequestor instances

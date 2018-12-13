@@ -1,7 +1,6 @@
-﻿using System;
-using com.signalfuse.metrics.protobuf;
+﻿using com.signalfuse.metrics.protobuf;
 
-namespace signalfxlambdawrapper
+namespace SignalFx.LambdaWrapper
 {
     public class MetricSender
     {

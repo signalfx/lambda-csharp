@@ -1,13 +1,13 @@
-﻿using System.Security;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
-using Metrics.SignalFx.Helpers;
-using com.signalfuse.metrics.protobuf;
+using System.Security;
 using Amazon.Lambda.Core;
+using com.signalfuse.metrics.protobuf;
 using ProtoBuf;
+using SignalFx.LambdaWrapper.Helpers;
 
-namespace signalfxlambdawrapper
+namespace SignalFx.LambdaWrapper
 {
     public class SignalFxReporter : ISignalFxReporter
     {

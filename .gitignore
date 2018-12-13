@@ -1,0 +1,7 @@
+.vs/
+bin/
+lambda-csharp.sln
+obj/
+*.nupkg
+.idea/
+lambda-csharp.sln.DotSettings.user

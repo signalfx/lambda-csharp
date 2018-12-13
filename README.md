@@ -9,52 +9,66 @@ The SignalFx C# Lambda Wrapper is a wrapper around an Lambda Function, used to i
 ### Install via NuGet
 Add the following package reference to your `.csproj` or `function.proj`
 ```xml
-  <PackageReference Include="signalfx-lambda-functions" Version="1.0.1"/>
+  <PackageReference Include="signalfx-lambda-functions" Version="2.0.1"/>
 ```
 
 
-### Using the Metric Wrapper
+### Using the Wrapper
 
-Create a MetricWrapper with the ExecutionContext
-Wrap your code in try-catch-finally, disposing of the wrapper finally.
+In the common Lambda implementation where you are required to define a Lambda handler method directly, you explicitly send metrics to SignalFx by creating a MetricWrapper with the ExecutionContext Wrap your code in try-catch-finally, disposing of the wrapper finally.
 ```cs
-using signalfxlambdawrapper
+using SignalFx.LambdaWrapper
 
 ...
 
-    [FunctionName("HttpTrigger")]
-		public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log, ExecutionContext context)
-        {
-            log.Info("C# HTTP trigger function processed a request.");
-            MetricWrapper wrapper = new MetricWrapper(context);
-            try { 
-                ...
-                // your code
-                ...
-                return ResponseObject
-            } catch (Exception e) {
-              wrapper.Error();
-            } finally {
-              wrapper.Dispose();
-            }
-
-        }
+[FunctionName("HttpTrigger")]
+public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log, ExecutionContext context)
+{
+    log.Info("C# HTTP trigger function processed a request.");
+    MetricWrapper wrapper = new MetricWrapper(context);
+    try { 
+        ...
+        // your code
+        ...
+        return ResponseObject
+    } catch (Exception e) {
+      wrapper.Error();
+    } finally {
+      wrapper.Dispose();
+    }
+}
 ```
+In the `ASP.Net Core Web API with Lambda` implementation where you do not define the Lambda handler method directly but rather extend `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`, you simply extend `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` instead in order to send metrics to SignalFx. No need to explicitly define logic for sending metrics.
+```cs
+public class LambdaEntryPoint : SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper
+{
+    protected override void Init(IWebHostBuilder builder)
+    {
+      ...
+    }
+}
+```
+Note that `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` extends `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`. Also, the lambda context object `Amazon.Lambda.Core.ILambdaContext` from which default metric dimensions are derived is not available in the Web API Controllers layer on down.
 
 ### Environment Variable
 Set the Lambda Function environment variables as follows:
 
-1) Set authentication token:
-```
+1 ) Set authentication token:
+```text
  SIGNALFX_AUTH_TOKEN=signalfx token
 ```
-2) Optional parameters available:
-```
+2 ) Optional parameters available:
+```text
  SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
  SIGNALFX_API_PORT=[443]
  SIGNALFX_API_SCHEME=[https]
  SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
 ```
+3 ) Additional optional parameters for ASP.Net Core Web API with Lambda:
+```text
+ CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
+ DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
+``` 
 
 ### Metrics and dimensions sent by the wrapper
 The Lambda wrapper sends the following metrics to SignalFx:
@@ -81,7 +95,10 @@ The Lambda wrapper adds the following dimensions to all data points sent to Sign
 | function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx-lambda-0.0.5) |
 | metric_source | The literal value of 'lambda_wrapper' |
 
-### Sending a custom metric from the Lambda Function
+### Sending custom metric
+
+Below is an example of sending user-defined metrics (i.e. custom metrics) from withing a directly defined Lambda handler method. The lambda context object is available.
+
 ```cs
 using com.signalfuse.metrics.protobuf;
 
@@ -106,6 +123,33 @@ dp.dimensions.Add(dim);
 
 // send the metric
 MetricSender.sendMetric(dp);
+```
+
+Sending custom metric in the Web API Controller layer on down for `ASP.Net Core Web API with Lambda` implementations is curtailed by the fact that the lambda context object is not available. However, the SignalFx C# Lambda Wrapper provides extension method `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` for type `Microsoft.AspNetCoreServer.Http.HttpResponse` for exporting metric datapoints to SignalFx. Below is an example of sending metrics from within a Web API Controller method.
+
+```cs
+...
+using com.signalfuse.metrics.protobuf;
+using SignalFx.LambdaWrapper.AspNetCoreServer.Extensions;
+...
+[HttpGet]
+public IEnumerable<string> Get()
+{
+    ...
+    DataPoint dataPoint = new DataPoint
+    {
+        metric = "mycontroller.get.invokes",
+        metricType = MetricType.COUNTER,
+        value = new Datum
+        {
+            intValue = 1
+        }
+    };
+    var response = Request.HttpContext.Response;
+    response.AddMetricDataPoint(dataPoint);
+    ...
+}
+...
 ```
 
 ### Testing locally.
