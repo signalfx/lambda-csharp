@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using com.signalfuse.metrics.protobuf;
 using Amazon.Lambda.Core;
+using com.signalfuse.metrics.protobuf;
 
-namespace signalfxlambdawrapper
+namespace SignalFx.LambdaWrapper
 {
     public class MetricWrapper : IDisposable
     {

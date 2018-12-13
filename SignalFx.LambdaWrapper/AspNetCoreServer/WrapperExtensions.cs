@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.Core;
 using com.signalfuse.metrics.protobuf;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
-using Amazon.Lambda.Core;
 using Microsoft.AspNetCore.Http.Features;
 using Newtonsoft.Json;
-using Amazon.Lambda.APIGatewayEvents;
 
-namespace SignalFx.LambdaWrapper.Extensions
+namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
     public static class WrapperExtensions
     {

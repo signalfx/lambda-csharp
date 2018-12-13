@@ -1,16 +1,15 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.AspNetCoreServer;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
-using Microsoft.AspNetCore.Http.Features;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Amazon.Lambda.AspNetCoreServer;
 using com.signalfuse.metrics.protobuf;
-using SignalFx.LambdaWrapper.Extensions;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Http.Features;
 
-namespace SignalFx.LambdaWrapper
+namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
     /// <inheritdoc />
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace signalfxlambdawrapper
+namespace SignalFx.LambdaWrapper
 {
 	public class SignalFxLambdaEndpoint
 	{

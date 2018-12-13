@@ -1,7 +1,7 @@
 ﻿using System;
 using Amazon.Lambda.Core;
 
-namespace SignalFx.LambdaWrapper
+namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
     public partial class HttpClientWrapper
     {

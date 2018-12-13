@@ -1,7 +1,6 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Metrics.SignalFx.Helpers
+namespace SignalFx.LambdaWrapper.Helpers
 {
     public class WebRequestorFactory : IWebRequestorFactory
     {

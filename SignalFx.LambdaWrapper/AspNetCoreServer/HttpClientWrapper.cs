@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using com.signalfuse.metrics.protobuf;
 using ProtoBuf;
 
-namespace SignalFx.LambdaWrapper
+namespace SignalFx.LambdaWrapper.AspNetCoreServer
 {
     public partial class HttpClientWrapper
     {
