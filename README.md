@@ -11,10 +11,7 @@ Add the following package reference to your `.csproj` or `function.proj`
 ```xml
   <PackageReference Include="signalfx-lambda-functions" Version="2.0.1"/>
 ```
-NOTE: Package `signalfx-lambda-functions` depends on packages `Amazon.Lambda`, `Amazon.Lambda.AspNetCoreServer` and `protobuf-net`. 
-Your package manager should add these transitive dependencies to your project negating the need to explicitly add them. However, 
-`protobut-net` has be reported missing on occasion by users. If this happens then reference the `protobut-net` package in your project
-similar to the statement above. See this project's `.csproj` file for details about the version of `protobuf-net` required.
+NOTE: The `signalfx-lambda-functions` package depends on packages `Amazon.Lambda`, `Amazon.Lambda.AspNetCoreServer` and `protobuf-net`. Your package manager should add these transitive dependencies automatically to your project. This negates the need to add them explicitly. However, `protobut-net` has be reported missing on occasion by users. If this happens, reference the `protobut-net` package as a dependency in your project using a statement similar to the one above. See this project's `.csproj` file for details about the version of `protobuf-net` required.
 
 ### Using the Wrapper
 
