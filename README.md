@@ -15,6 +15,14 @@ NOTE: The `signalfx-lambda-functions` package depends on packages `Amazon.Lambda
 
 ### Using the Wrapper
 
+#### Configuring the ingest endpoint
+
+By default, this function wrapper will send to the `us0` realm. If you are
+not in this realm you will need to set the `SIGNALFX_API_HOSTNAME` environment
+variable to the correct realm ingest endpoint (https://ingest.{REALM}.signalfx.com).
+To determine what realm you are in, check your profile page in the SignalFx
+web application (click the avatar in the upper right and click My Profile).
+
 In the common Lambda implementation where you are required to define a Lambda handler method directly, you explicitly send metrics to SignalFx by creating a MetricWrapper with the ExecutionContext Wrap your code in try-catch-finally, disposing of the wrapper finally.
 ```cs
 using SignalFx.LambdaWrapper
