@@ -20,9 +20,7 @@ The `signalfx-lambda-functions` has the following package dependencies:
   
 Your package manager should add these package dependencies automatically to your project.   
   
-2. Verify that `protobut-net` has been added. If `protobut-net` is missing, then reference the `protobut-net` package as a dependency in your project, similar to Step 1. Reference this project's  with a statement similar
-
-Your package manager should add these package dependencies automatically to your project; however, as a precaution, verify that `protobut-net` has been added. If `protobut-net` is missing, then reference `.csproj` file for details about the version of `protobuf-net` required.
+2. Verify that `protobut-net` has been added. If `protobut-net` is missing, then reference the `protobut-net` package as a dependency in your project, similar to Step 1. 
 
 ## Step 2: Locate ingest endpoint
 
@@ -144,7 +142,7 @@ dp.dimensions.Add(dim);
 MetricSender.sendMetric(dp);
 ```
 
-2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is not availiable. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
+2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is not available. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
 
 ```cs
 ...
