@@ -1,29 +1,70 @@
-# SignalFx C# Lambda Wrapper
+# SignalFx .NET Lambda Wrapper
 
-SignalFx C# Lambda Wrapper.
+## Overview
 
-## Usage
+You can use this document to add a SignalFx wrapper to your AWS Lambda for C#.
 
-The SignalFx C# Lambda Wrapper is a wrapper around an Lambda Function, used to instrument execution of the function and send metrics to SignalFx.
+The SignalFx C# Lambda Wrapper wraps around an AWS Lambda C# function handler, which allows metrics to be sent to SignalFx.
 
-### Install via NuGet
-Add the following package reference to your `.csproj` or `function.proj`
+## Step 1: Install via NuGet
+
+1. Add the following package reference to `.csproj` or `function.proj`:
 ```xml
   <PackageReference Include="signalfx-lambda-functions" Version="2.0.1"/>
 ```
-NOTE: The `signalfx-lambda-functions` package depends on packages `Amazon.Lambda`, `Amazon.Lambda.AspNetCoreServer` and `protobuf-net`. Your package manager should add these transitive dependencies automatically to your project. This negates the need to add them explicitly. However, `protobut-net` has be reported missing on occasion by users. If this happens, reference the `protobut-net` package as a dependency in your project using a statement similar to the one above. See this project's `.csproj` file for details about the version of `protobuf-net` required.
 
-### Using the Wrapper
+The `signalfx-lambda-functions` has the following package dependencies; your package manager should add these package dependencies automatically to your project:
 
-#### Configuring the ingest endpoint
+  * `Amazon.Lambda` 
+  * `Amazon.Lambda.AspNetCoreServer` 
+  * `protobuf-net` 
+    
+2. Verify that `protobut-net` has been added. If `protobut-net` is missing, then reference the `protobut-net` package as a dependency in your project, similar to Step 1. 
 
-By default, this function wrapper will send to the `us0` realm. If you are
-not in this realm you will need to set the `SIGNALFX_API_HOSTNAME` environment
-variable to the correct realm ingest endpoint (https://ingest.{REALM}.signalfx.com).
-To determine what realm you are in, check your profile page in the SignalFx
-web application (click the avatar in the upper right and click My Profile).
+## Step 2: Locate the ingest endpoint
 
-In the common Lambda implementation where you are required to define a Lambda handler method directly, you explicitly send metrics to SignalFx by creating a MetricWrapper with the ExecutionContext Wrap your code in try-catch-finally, disposing of the wrapper finally.
+By default, this function wrapper will send data to the us0 realm. As a result, if you are not in the us0 realm and you want to use the ingest endpoint directly, then you must explicitly set your realm. 
+
+To locate your realm:
+
+1. Open SignalFx and in the top, right corner, click your profile icon.
+2. Click **My Profile**.
+3. Next to **Organizations**, review the listed realm.
+
+To set your realm, use a subdomain, such as ingest.us1.signalfx.com or ingest.eu0.signalfx.com. You will use the realm subdomain to set `SIGNALFX_API_HOSTNAME` variable in the next step.
+
+## Step 3: Set Lambda function environment variables
+
+1. Set authentication token:
+    ```text
+     SIGNALFX_AUTH_TOKEN=signalfx token
+    ```
+2. Review optional parameters: 
+    ```text
+     SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
+     SIGNALFX_API_PORT=[443]
+     SIGNALFX_API_SCHEME=[https]
+     SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
+    ```
+    (When you set `SIGNALFX_API_HOSTNAME`, you must reference your correct realm from Step 2.)
+
+3. Review optional parameters for ASP.Net Core Web API with Lambda:
+    ```text
+     CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
+     DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
+    ``` 
+
+## Step 4: Wrap the function
+
+To wrap the function, review the following options. 
+
+### Option 1: Wrap the function manually
+
+With this option, you will define a Lambda handler method and explicitly send metrics to SignalFx. To accomplish this, you will create a MetricWrapper with the ExecutionContext Wrap in your code with try-catch-finally and dispose of the wrapper finally.
+
+Review the following example: 
+
+
 ```cs
 using SignalFx.LambdaWrapper
 
@@ -46,7 +87,15 @@ public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get",
     }
 }
 ```
-In the `ASP.Net Core Web API with Lambda` implementation where you do not define the Lambda handler method directly but rather extend `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`, you simply extend `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` instead in order to send metrics to SignalFx. No need to explicitly define logic for sending metrics.
+
+### Option 2: Use SignalFx FunctionWrapper
+
+With this option, you will extend `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction` and `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` to send metrics to SignalFx. 
+
+With this option, you will  **not** need to explicitly define the logic for sending metrics.
+
+Review the following example: 
+
 ```cs
 public class LambdaEntryPoint : SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper
 {
@@ -56,27 +105,80 @@ public class LambdaEntryPoint : SignalFx.LambdaWrapper.AspNetCoreServer.APIGatew
     }
 }
 ```
-Note that `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` extends `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`. Also, the lambda context object `Amazon.Lambda.Core.ILambdaContext` from which default metric dimensions are derived is not available in the Web API Controllers layer on down.
 
-### Environment Variable
-Set the Lambda Function environment variables as follows:
+Please note that:
+  * `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` extends `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`. 
+  * The Lambda context object `Amazon.Lambda.Core.ILambdaContext` that provides metric dimensions is not available in the Web API Controllers layer on down.
 
-1 ) Set authentication token:
-```text
- SIGNALFX_AUTH_TOKEN=signalfx token
-```
-2 ) Optional parameters available:
-```text
- SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
- SIGNALFX_API_PORT=[443]
- SIGNALFX_API_SCHEME=[https]
- SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
-```
-3 ) Additional optional parameters for ASP.Net Core Web API with Lambda:
-```text
- CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
- DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
-``` 
+## (Optional) Step 5: Send custom metrics from the Lambda function 
+
+1. Review the following example to understand how to send custom metrics from a defined Lambda handler when the Lambda context object is available:
+
+    ```cs
+    using com.signalfuse.metrics.protobuf;
+    
+    // construct a data point
+    DataPoint dp = new DataPoint();
+    
+    // use Datum to set the value
+    Datum datum = new Datum();
+    datum.intValue = 1;
+    
+    // set the name, value, and metric type on the datapoint
+    
+    dp.metric = "metric_name";
+    dp.metricType = MetricType.GAUGE;
+    dp.value = datum;
+    
+    // add custom dimension
+    Dimension dim = new Dimension();
+    dim.key = "applicationName";
+    dim.value = "CoolApp";
+    dp.dimensions.Add(dim);
+    
+    // send the metric
+    MetricSender.sendMetric(dp);
+    ```
+
+2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is **not** available. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
+
+    ```cs
+    ...
+    using com.signalfuse.metrics.protobuf;
+    using SignalFx.LambdaWrapper.AspNetCoreServer.Extensions;
+    ...
+    [HttpGet]
+    public IEnumerable<string> Get()
+    {
+        ...
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            ...
+            DataPoint dataPoint = new DataPoint
+            {
+                metric = "mycontroller.get.invokes",
+                metricType = MetricType.COUNTER,
+                value = new Datum
+                {
+                    intValue = 1
+                }
+            };
+            var response = Request.HttpContext.Response;
+            response.AddMetricDataPoint(dataPoint);
+            ...
+        }
+        ...
+    ```
+## (Optional) Step 6: Reduce the size of deployment packages with AWS Lambda Layers
+
+1. For advanced users who want to reduce the size of deployment packages, please visit the AWS documentation site and see [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+
+2. SignalFx hosts layers containing this wrapper in most AWS regions. To review the latest available version for your region, see [the list of versions](https://github.com/signalfx/lambda-layer-versions/blob/master/csharp/CSHARP.md).
+
+3. After you locate the appropriate layer version, please visit the AWS documentation site and follow [AWS instructions to deploy .NET Core Lambda with the layer](https://aws.amazon.com/blogs/developer/aws-lambda-layers-with-net-core/).
+
+## Additional information and optional steps
 
 ### Metrics and dimensions sent by the wrapper
 The Lambda wrapper sends the following metrics to SignalFx:
@@ -103,69 +205,12 @@ The Lambda wrapper adds the following dimensions to all data points sent to Sign
 | function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx-lambda-0.0.5) |
 | metric_source | The literal value of 'lambda_wrapper' |
 
-### Sending custom metric
 
-Below is an example of sending user-defined metrics (i.e. custom metrics) from withing a directly defined Lambda handler method. The lambda context object is available.
+### Test locally
+1. Review the following document from AWS: [Introducing AWS SAM Local, a CLI Tool to Test AWS Lambda Functions Locally](https://aws.amazon.com/about-aws/whats-new/2017/08/introducing-aws-sam-local-a-cli-tool-to-test-aws-lambda-functions-locally/).
 
-```cs
-using com.signalfuse.metrics.protobuf;
-
-// construct a data point
-DataPoint dp = new DataPoint();
-
-// use Datum to set the value
-Datum datum = new Datum();
-datum.intValue = 1;
-
-// set the name, value, and metric type on the datapoint
-
-dp.metric = "metric_name";
-dp.metricType = MetricType.GAUGE;
-dp.value = datum;
-
-// add custom dimension
-Dimension dim = new Dimension();
-dim.key = "applicationName";
-dim.value = "CoolApp";
-dp.dimensions.Add(dim);
-
-// send the metric
-MetricSender.sendMetric(dp);
-```
-
-Sending custom metric in the Web API Controller layer on down for `ASP.Net Core Web API with Lambda` implementations is curtailed by the fact that the lambda context object is not available. However, the SignalFx C# Lambda Wrapper provides extension method `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` for type `Microsoft.AspNetCoreServer.Http.HttpResponse` for exporting metric datapoints to SignalFx. Below is an example of sending metrics from within a Web API Controller method.
-
-```cs
-...
-using com.signalfuse.metrics.protobuf;
-using SignalFx.LambdaWrapper.AspNetCoreServer.Extensions;
-...
-[HttpGet]
-public IEnumerable<string> Get()
-{
-    ...
-    DataPoint dataPoint = new DataPoint
-    {
-        metric = "mycontroller.get.invokes",
-        metricType = MetricType.COUNTER,
-        value = new Datum
-        {
-            intValue = 1
-        }
-    };
-    var response = Request.HttpContext.Response;
-    response.AddMetricDataPoint(dataPoint);
-    ...
-}
-...
-```
-
-### Testing locally.
-1) Follow the Lambda instructions to run functions locally https://aws.amazon.com/about-aws/whats-new/2017/08/introducing-aws-sam-local-a-cli-tool-to-test-aws-lambda-functions-locally/
-
-2) Install the NuGet package above, run as normal.
-
+2. Install the NuGet package (from Step 1 in the installation section), and then run as normal.  
 
 ## License
 
-Apache Software License v2. Copyright © 2014-2017 SignalFx
+Apache Software License v2. Copyright © 2014-2020 Splunk
