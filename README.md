@@ -24,7 +24,7 @@ Your package manager should add these package dependencies automatically to your
 
 Your package manager should add these package dependencies automatically to your project; however, as a precaution, verify that `protobut-net` has been added. If `protobut-net` is missing, then reference `.csproj` file for details about the version of `protobuf-net` required.
 
-## Step 2: Locate ingest endpoint
+## Step 2: Locate the ingest endpoint
 
 By default, this function wrapper will send data to the us0 realm. As a result, if you are not in us0 realm and you want to use the ingest endpoint directly, then you must explicitly set your realm. 
 
@@ -34,28 +34,28 @@ To locate your realm:
 2. Click **My Profile**.
 3. Next to **Organizations**, review the listed realm.
 
-To set your realm, use a subdomain, such as ingest.us1.signalfx.com or ingest.eu0.signalfx.com. You will use the realm subdomain to set SIGNALFX_INGEST_ENDPOINT variable in the next step.
+To set your realm, use a subdomain, such as ingest.us1.signalfx.com or ingest.eu0.signalfx.com. You will use the realm subdomain to set `SIGNALFX_API_HOSTNAME` variable in the next step.
 
 ## Step 3: Set Lambda function environment variables
 
 1. Set authentication token:
-```text
- SIGNALFX_AUTH_TOKEN=signalfx token
-```
+    ```text
+     SIGNALFX_AUTH_TOKEN=signalfx token
+    ```
 2. Review optional parameters: 
-```text
- SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
- SIGNALFX_API_PORT=[443]
- SIGNALFX_API_SCHEME=[https]
- SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
-```
-(When you set SIGNALFX_API_HOSTNAME, you must reference your correct realm from Step 2.)
+    ```text
+     SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
+     SIGNALFX_API_PORT=[443]
+     SIGNALFX_API_SCHEME=[https]
+     SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
+    ```
+    (When you set `SIGNALFX_API_HOSTNAME`, you must reference your correct realm from Step 2.)
 
 3. Review optional parameters for ASP.Net Core Web API with Lambda:
-```text
- CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
- DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
-``` 
+    ```text
+     CONNECTION_LEASE_TIMEOUT=milliseconds for connection lease timeout [5000]
+     DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
+    ``` 
 
 ## Step 4: Wrap the function
 
@@ -117,59 +117,58 @@ Please note that:
 
 1. Review the following example to understand how to custom metrics from a defined Lambda handler when the Lambda context object is available:
 
+    ```cs
+    using com.signalfuse.metrics.protobuf;
+    
+    // construct a data point
+    DataPoint dp = new DataPoint();
+    
+    // use Datum to set the value
+    Datum datum = new Datum();
+    datum.intValue = 1;
+    
+    // set the name, value, and metric type on the datapoint
+    
+    dp.metric = "metric_name";
+    dp.metricType = MetricType.GAUGE;
+    dp.value = datum;
+    
+    // add custom dimension
+    Dimension dim = new Dimension();
+    dim.key = "applicationName";
+    dim.value = "CoolApp";
+    dp.dimensions.Add(dim);
+    
+    // send the metric
+    MetricSender.sendMetric(dp);
+    ```
 
-```cs
-using com.signalfuse.metrics.protobuf;
+2. Review the following example to understand how to send custom metrics in the Web API Controller layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is not availiable. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
 
-// construct a data point
-DataPoint dp = new DataPoint();
-
-// use Datum to set the value
-Datum datum = new Datum();
-datum.intValue = 1;
-
-// set the name, value, and metric type on the datapoint
-
-dp.metric = "metric_name";
-dp.metricType = MetricType.GAUGE;
-dp.value = datum;
-
-// add custom dimension
-Dimension dim = new Dimension();
-dim.key = "applicationName";
-dim.value = "CoolApp";
-dp.dimensions.Add(dim);
-
-// send the metric
-MetricSender.sendMetric(dp);
-```
-
-2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is not availiable. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
-
-```cs
-...
-using com.signalfuse.metrics.protobuf;
-using SignalFx.LambdaWrapper.AspNetCoreServer.Extensions;
-...
-[HttpGet]
-public IEnumerable<string> Get()
-{
+    ```cs
     ...
-    DataPoint dataPoint = new DataPoint
+    using com.signalfuse.metrics.protobuf;
+    using SignalFx.LambdaWrapper.AspNetCoreServer.Extensions;
+    ...
+    [HttpGet]
+    public IEnumerable<string> Get()
     {
-        metric = "mycontroller.get.invokes",
-        metricType = MetricType.COUNTER,
-        value = new Datum
+        ...
+        DataPoint dataPoint = new DataPoint
         {
-            intValue = 1
-        }
-    };
-    var response = Request.HttpContext.Response;
-    response.AddMetricDataPoint(dataPoint);
+            metric = "mycontroller.get.invokes",
+            metricType = MetricType.COUNTER,
+            value = new Datum
+            {
+                intValue = 1
+            }
+        };
+        var response = Request.HttpContext.Response;
+        response.AddMetricDataPoint(dataPoint);
+        ...
+    }
     ...
-}
-...
-```
+    ```
 ## (Optional) Step 6: Reduce the size of deployment packages with AWS Lambda Layers
 
 1. For advanced users who want to reduce the size of deployment packages, please visit the AWS documentation site and see [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
@@ -213,4 +212,4 @@ The Lambda wrapper adds the following dimensions to all data points sent to Sign
 
 ## License
 
-Apache Software License v2. Copyright © 2014-2020 SignalFx
+Apache Software License v2. Copyright © 2014-2020 Splunk
