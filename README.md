@@ -13,18 +13,17 @@ The SignalFx C# Lambda Wrapper wraps around an AWS Lambda C# function handler, w
   <PackageReference Include="signalfx-lambda-functions" Version="2.0.1"/>
 ```
 
-The `signalfx-lambda-functions` has the following package dependencies: 
+The `signalfx-lambda-functions` has the following package dependencies; your package manager should add these package dependencies automatically to your project:
+
   * `Amazon.Lambda` 
   * `Amazon.Lambda.AspNetCoreServer` 
   * `protobuf-net` 
-  
-Your package manager should add these package dependencies automatically to your project.   
-  
+    
 2. Verify that `protobut-net` has been added. If `protobut-net` is missing, then reference the `protobut-net` package as a dependency in your project, similar to Step 1. 
 
 ## Step 2: Locate the ingest endpoint
 
-By default, this function wrapper will send data to the us0 realm. As a result, if you are not in us0 realm and you want to use the ingest endpoint directly, then you must explicitly set your realm. 
+By default, this function wrapper will send data to the us0 realm. As a result, if you are not in the us0 realm and you want to use the ingest endpoint directly, then you must explicitly set your realm. 
 
 To locate your realm:
 
@@ -63,7 +62,7 @@ To wrap the function, review the following options.
 
 With this option, you will define a Lambda handler method and explicitly send metrics to SignalFx. To accomplish this, you will create a MetricWrapper with the ExecutionContext Wrap in your code with try-catch-finally and dispose of the wrapper finally.
 
-Review the following example. 
+Review the following example: 
 
 
 ```cs
@@ -95,7 +94,7 @@ With this option, you will extend `Amazon.Lambda.AspNetCoreServer.APIGatewayProx
 
 With this option, you will  **not** need to explicitly define the logic for sending metrics.
 
-Review the following example. 
+Review the following example: 
 
 ```cs
 public class LambdaEntryPoint : SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper
@@ -113,7 +112,7 @@ Please note that:
 
 ## (Optional) Step 5: Send custom metrics from the Lambda function 
 
-1. Review the following example to understand how to custom metrics from a defined Lambda handler when the Lambda context object is available:
+1. Review the following example to understand how to send custom metrics from a defined Lambda handler when the Lambda context object is available:
 
     ```cs
     using com.signalfuse.metrics.protobuf;
@@ -141,7 +140,7 @@ Please note that:
     MetricSender.sendMetric(dp);
     ```
 
-2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is not available. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
+2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is **not** available. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
 
     ```cs
     ...
