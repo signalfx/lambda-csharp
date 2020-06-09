@@ -31,7 +31,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
                     uri = new UriBuilder
                     {
                         Scheme = GetStringEnvironmentVariable(SignalFxIngestSchemeEnvVar, "https"),
-                        Host = GetStringEnvironmentVariable(SignalFxIngestHostEnvVar, "pops.signalfx.com"),
+                        Host = GetStringEnvironmentVariable(SignalFxIngestHostEnvVar, "ingest.us0.signalfx.com"),
                         Port = GetIntEnvironmentVariable(SignalFxIngestPortEnvVar, 443)
                     }.Uri;
                 }

@@ -5,7 +5,7 @@ namespace SignalFx.LambdaWrapper
 	public class SignalFxLambdaEndpoint
 	{
 		public static readonly string DEFAULT_SCHEME = "https";
-		public static readonly string DEFAULT_HOST_NAME = "pops.signalfx.com";
+		public static readonly string DEFAULT_HOST_NAME = "ingest.us0.signalfx.com";
 		public static readonly int DEFAULT_PORT = 443;
 
 		private const string API_HOST_NAME = "SIGNALFX_API_HOSTNAME";
