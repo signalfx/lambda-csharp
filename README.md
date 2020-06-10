@@ -41,7 +41,7 @@ To set your realm, use a subdomain, such as ingest.us1.signalfx.com or ingest.eu
     ```
 2. Review optional parameters: 
     ```text
-     SIGNALFX_API_HOSTNAME=[pops.signalfx.com]
+     SIGNALFX_API_HOSTNAME=[ingest.us0.signalfx.com]
      SIGNALFX_API_PORT=[443]
      SIGNALFX_API_SCHEME=[https]
      SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
