@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Version>2.0.2-rc.0</Version>
+        <AssemblyVersion>2.0.2</AssemblyVersion>
+        <Title>SignalFx AWS Lambda Wrapper C#</Title>
+        <Company>SignalFx</Company>
+        <Authors>SignalFx</Authors>
+        <Copyright>Copyright © 2014-2018 SignalFx</Copyright>
+        <RepositoryUrl>https://github.com/signalfx/lambda-csharp</RepositoryUrl>
+        <DefaultLanguage>en-US</DefaultLanguage>
+        <NeutralLanguage>en-US</NeutralLanguage>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageIconUrl>https://github.com/signalfx/lambda-csharp/blob/master/signalfx-logo-64x64.png</PackageIconUrl>
+        <PackageIcon>signalfx-logo-64x64.png</PackageIcon>
+        <PackageId>signalfx-lambda-functions</PackageId>
+        <PackageProjectUrl>https://github.com/signalfx/lambda-csharp</PackageProjectUrl>
+        <PackageLicense>https://github.com/signalfx/lambda-csharp/blob/master/LICENSE</PackageLicense>
+        <PackageReleaseNotes>Added tracing support.</PackageReleaseNotes>
+        <PackageTags>SignalFx;Lambda;Tracing;Metrics;APM</PackageTags>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="./signalfx-logo-64x64.png" Pack="true" PackagePath="/"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+        <PackageReference Include="protobuf-net" Version="2.4.0" />
+        <PackageReference Include="SignalFx.Tracing.OpenTracing" Version="0.1.7-rc.0" />
+    </ItemGroup>
+</Project>
