@@ -52,7 +52,7 @@ namespace SignalFx.LambdaWrapper
 
             if (MetricsEnabled = GetBoolEnvVar("SIGNALFX_METRICS_ENABLED", false))
             {
-                // TODO: Adapt common settings from Tracing so user can avoid double config.
+                TryAdaptTracingSettingsToMetrics();
             }
 
             if (DebugEnabled = GetBoolEnvVar(ConfigurationKeys.DebugEnabled, false))
