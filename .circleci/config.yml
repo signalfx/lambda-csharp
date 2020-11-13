@@ -4,6 +4,16 @@ orbs:
   win: circleci/windows@2.2.0
 
 commands:
+  install_dotnet:
+    steps:
+      - run:
+          name: Install dotnet SDK
+          command: |
+            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+            sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
+            sudo apt-get update
+            sudo apt-get install -y dotnet-sdk-3.1
+
   build:
     steps:
       - checkout
@@ -38,8 +48,9 @@ commands:
 jobs:
   Linux:
     machine:
-      image: ubuntu-1604:202007-01
+      image: ubuntu-2004:202008-01
     steps:
+      - install_dotnet
       - build
       - test
       - build_nuget
