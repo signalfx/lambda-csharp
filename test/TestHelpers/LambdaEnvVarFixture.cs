@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SampleLambdaFunctions
+namespace TestHelpers
 {
     public class LambdaEnvVarFixture : IDisposable
     {
@@ -8,6 +8,10 @@ namespace SampleLambdaFunctions
 
         public LambdaEnvVarFixture()
         {
+            // In order to tests to work a few env vars are required:
+            Environment.SetEnvironmentVariable("SIGNALFX_ENDPOINT_URL", "http://localhost:9080/v1/traces");
+            Environment.SetEnvironmentVariable("SIGNALFX_ACCESS_TOKEN", "bogustoken");
+
             Environment.SetEnvironmentVariable("AWS_EXECUTION_ENV", ExecutionEnvironment);
         }
 

@@ -7,14 +7,14 @@ using System.Linq;
 using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
-using TestHelpers;
-using Xunit;
 using SignalFx.LambdaWrapper;
 using SignalFx.Tracing;
+using TestHelpers;
+using Xunit;
 
 namespace SampleServerlessASPNETCore.Tests
 {
-    public class ValuesControllerTests
+    public class ValuesControllerTests : IClassFixture<LambdaEnvVarFixture>
     {
         [Fact]
         public void TestGet()

@@ -1,20 +1,20 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
 using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
+using SignalFx.LambdaWrapper;
+using SignalFx.Tracing;
 using TestHelpers;
 using Xunit;
-using System.Collections.Immutable;
-using SignalFx.LambdaWrapper;
-using System.Collections.Generic;
-using SignalFx.Tracing;
 
 namespace SampleServerlessHttpApiV2ASPNETCore.Tests
 {
-    public class ValuesControllerTests
+    public class ValuesControllerTests : IClassFixture<LambdaEnvVarFixture>
     {
         [Fact]
         public void TestGet()

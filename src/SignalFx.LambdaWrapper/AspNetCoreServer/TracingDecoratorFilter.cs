@@ -9,6 +9,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
     {
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            // Use OpenTracing to access the current span.
             ISpan span = GlobalTracer.Instance?.ActiveSpan;
             if (span == null)
             {
@@ -31,6 +32,7 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
+            // Use OpenTracing to access the current span.
             ISpan span = GlobalTracer.Instance?.ActiveSpan;
             if (span == null)
             {

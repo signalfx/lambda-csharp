@@ -180,7 +180,7 @@ namespace SampleLambdaFunctions.Tests
                 { "aws_function_name", "sample-lambda-functions" },
                 { "aws_function_version", "$LATEST" },
                 { "aws_execution_env", LambdaEnvVarFixture.ExecutionEnvironment },
-                { "function_wrapper_version", "signalfx_lambda_2.0.2.0" },
+                { "function_wrapper_version", "signalfx_lambda_3.0.0.0" },
                 { "component", "dotnet-lambda-wrapper" },
                 { "span.kind", "server" },
             };

@@ -17,6 +17,8 @@ namespace SignalFx.LambdaWrapper
     /// </summary>
     public static class TelemetryConfiguration
     {
+        public const string ContextPropagationEnabledEnvVariable = "SIGNALFX_CTX_PROPAGATION_ENABLED";
+
         static TelemetryConfiguration()
         {
             Init();
@@ -37,8 +39,14 @@ namespace SignalFx.LambdaWrapper
         /// </remarks>
         internal static void Init()
         {
-            if (TracingEnabled = GetBoolEnvVar(ConfigurationKeys.TraceEnabled, true))
+            // Only start tracing if the minimum information for it to run successfully
+            // is provided.
+            if (GetBoolEnvVar(ConfigurationKeys.TraceEnabled, true) &&
+                TryGetEnvVar(ConfigurationKeys.EndpointUrl, out var _) &&
+                TryGetEnvVar(ConfigurationKeys.SignalFxAccessToken, out var _))
             {
+                TracingEnabled = true;
+
                 // Set proper defaults for AWS Lambda before the tracer is instantiated.
                 TrySetEnvVar(ConfigurationKeys.SynchronousSend, "true");
                 TrySetEnvVar(ConfigurationKeys.FileLogEnabled, "false");
@@ -48,6 +56,8 @@ namespace SignalFx.LambdaWrapper
                 {
                     TrySetEnvVar(ConfigurationKeys.ServiceName, lambdaFnName);
                 }
+
+                ContextPropagationEnabled = GetBoolEnvVar(ContextPropagationEnabledEnvVariable, false);
             }
 
             if (MetricsEnabled = GetBoolEnvVar("SIGNALFX_METRICS_ENABLED", false))
@@ -72,7 +82,7 @@ namespace SignalFx.LambdaWrapper
                 Uri.TryCreate(uriString, UriKind.Absolute, out var tracingUri))
             {
                 TrySetEnvVar(HttpClientWrapper.SignalFxIngestSchemeEnvVar, tracingUri.Scheme);
-                TrySetEnvVar(HttpClientWrapper.SignalFxIngestHostEnvVar, tracingUri.Scheme);
+                TrySetEnvVar(HttpClientWrapper.SignalFxIngestHostEnvVar, tracingUri.Host);
                 TrySetEnvVar(HttpClientWrapper.SignalFxIngestPortEnvVar, tracingUri.Port.ToString());
             }
         }

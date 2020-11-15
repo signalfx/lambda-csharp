@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>2.0.2-rc.0</Version>
-        <AssemblyVersion>2.0.2</AssemblyVersion>
+        <Version>3.0.0-rc.0</Version>
+        <AssemblyVersion>3.0.0</AssemblyVersion>
         <Title>SignalFx AWS Lambda Wrapper C#</Title>
         <Company>SignalFx</Company>
         <Authors>SignalFx</Authors>
@@ -19,12 +19,12 @@
         <PackageTags>SignalFx;Lambda;Tracing;Metrics;APM</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="./signalfx-logo-64x64.png" Pack="true" PackagePath="/"/>
+        <None Include="./signalfx-logo-64x64.png" Pack="true" PackagePath="/" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
         <PackageReference Include="protobuf-net" Version="2.4.0" />
-        <PackageReference Include="SignalFx.Tracing.OpenTracing" Version="0.1.7-rc.0" />
+        <PackageReference Include="SignalFx.Tracing.OpenTracing" Version="0.1.7-rc.2" />
     </ItemGroup>
 </Project>

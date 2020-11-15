@@ -49,7 +49,7 @@ namespace SignalFx.LambdaWrapper
         {
         }
 
-        public MetricWrapper(List<KeyValuePair<string, string>> commonTags, ISignalFxReporter reporter = null)
+        internal MetricWrapper(List<KeyValuePair<string, string>> commonTags, ISignalFxReporter reporter = null)
         {
             _defaultDimensions = GetDefaultDimensions(commonTags);
             _metricsBatch = new List<DataPoint>(4);
