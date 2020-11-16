@@ -4,8 +4,8 @@
         "Sample AWS Serverless ASP.NET Core with HttpApi V2 and SignalFx Lambda Wrappers.",
         "See https://github.com/signalfx/lambda-csharp"
     ],
-    "profile"     : "pjanotti-sfx",
-    "region"      : "us-west-2",
+    "profile"     : "",
+    "region"      : "",
     "configuration" : "Release",
     "framework"     : "netcoreapp3.1",
     "s3-prefix"     : "SampleServerlessHttpApiV2ASPNETCore/",
