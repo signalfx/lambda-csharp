@@ -22,8 +22,12 @@ namespace SignalFx.LambdaWrapper.AspNetCoreServer
 
             // Enrich the span with headers or other data that is relevant to the specific context.
             // For example the "User-Agent" header.
-            var httpMethod = context.RouteData?.Values["action"]?.ToString().ToUpperInvariant();
-            span.SetTag("http.method", httpMethod);
+            var httpMethod = context.HttpContext?.Request?.Method?.ToUpperInvariant();
+            if (!string.IsNullOrEmpty(httpMethod))
+            {
+                span.SetTag("http.method", httpMethod);
+            }
+
             if (context.HttpContext.Request.Headers.TryGetValue("User-Agent", out var userAgent))
             {
                 span.SetTag("User-Agent", userAgent);
