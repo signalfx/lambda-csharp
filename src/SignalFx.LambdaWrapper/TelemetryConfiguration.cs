@@ -57,7 +57,7 @@ namespace SignalFx.LambdaWrapper
                     TrySetEnvVar(ConfigurationKeys.ServiceName, lambdaFnName);
                 }
 
-                ContextPropagationEnabled = GetBoolEnvVar(ContextPropagationEnabledEnvVariable, false);
+                ContextPropagationEnabled = GetBoolEnvVar(ContextPropagationEnabledEnvVariable, true);
             }
 
             if (MetricsEnabled = GetBoolEnvVar("SIGNALFX_METRICS_ENABLED", false))

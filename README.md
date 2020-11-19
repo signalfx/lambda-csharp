@@ -115,7 +115,7 @@ If you're sending data to an OpenTelemetry Collector, you have to specify the fu
 
 4. (Optional) Enable context propagation (currently only supports B3 propagation).
     ```bash
-    SIGNALFX_CTX_PROPAGATION_ENABLED=true [defaults to false]
+    SIGNALFX_CTX_PROPAGATION_ENABLED=true [defaults to true]
     ```
 
 5. (Optional) Specify other environment variables to better configure the traces.
