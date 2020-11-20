@@ -99,8 +99,8 @@ namespace SampleServerlessHttpApiV2ASPNETCore.Tests
             Assert.Equal("GET", httpMethod);
 
             // Check context propagation.
-            Assert.Equal(propagatedTraceId, span.TraceId.ToString("x16"));
             Assert.True(span.ParentId.HasValue);
+            Assert.Equal(propagatedTraceId, span.TraceId.ToString("x16"));
             Assert.Equal(parentSpanId, span.ParentId.Value.ToString("x16"));
         }
 

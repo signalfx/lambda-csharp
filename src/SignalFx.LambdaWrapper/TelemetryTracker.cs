@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 
 using Amazon.Lambda.Core;
+using OpenTracing;
+using OpenTracing.Propagation;
+using OpenTracing.Util;
 using SignalFx.Tracing;
-using SignalFx.Tracing.Headers;
 
 namespace SignalFx.LambdaWrapper
 {
@@ -13,9 +15,10 @@ namespace SignalFx.LambdaWrapper
     internal struct TelemetryTracker : IDisposable
     {
         internal static readonly Tracer s_sfxTracer;
+        internal static readonly ITracer s_otTracer;
         internal static bool s_coldStart;
 
-        internal readonly Scope _sfxScope;
+        internal readonly IScope _otScope;
         internal readonly MetricWrapper _metricWrapper;
 
         static TelemetryTracker()
@@ -25,6 +28,14 @@ namespace SignalFx.LambdaWrapper
             {
                 // This forces the registration of the SFx tracer with OpenTracing.
                 s_sfxTracer = Tracer.Instance;
+#pragma warning disable CS0612 // Type or member is obsolete
+                if (s_sfxTracer.Settings.DebugEnabled)
+#pragma warning restore CS0612 // Type or member is obsolete
+                {
+                    LambdaLogger.Log("[DBG] Tracer.Instance registered");
+                }
+
+                s_otTracer = GlobalTracer.Instance;
             }
         }
 
@@ -32,7 +43,7 @@ namespace SignalFx.LambdaWrapper
             ILambdaContext lambdaContext,
             string operationName = null,
             IEnumerable<KeyValuePair<string, string>> tags = null,
-            IHeadersCollection headersCollection = null)
+            IDictionary<string, string> headers = null)
             : this()
         {
             if (!TelemetryConfiguration.TracingEnabled && !TelemetryConfiguration.MetricsEnabled)
@@ -55,34 +66,37 @@ namespace SignalFx.LambdaWrapper
 
             if (TelemetryConfiguration.TracingEnabled)
             {
-                ISpanContext parentContext = null;
-                if (TelemetryConfiguration.ContextPropagationEnabled && headersCollection != null)
+                OpenTracing.ISpanContext parentContext = null;
+                if (TelemetryConfiguration.ContextPropagationEnabled && headers != null)
                 {
-                    parentContext = B3SpanContextPropagator.Instance.Extract(headersCollection);
+                    var tracer = GlobalTracer.Instance;
+                    parentContext = tracer.Extract(BuiltinFormats.HttpHeaders, new TextMapExtractAdapter(headers));
                 }
 
                 operationName = operationName ?? lambdaContext.FunctionName;
-                _sfxScope = s_sfxTracer.StartActive(operationName, parentContext);
+                _otScope = s_otTracer.BuildSpan(operationName)
+                    .AsChildOf(parentContext)
+                    .WithTag("span.kind", "server")
+                    .WithTag("component", "dotnet-lambda-wrapper")
+                    .WithTag("aws_request_id", lambdaContext.AwsRequestId)
+                    .StartActive();
 
-                var sfxSpan = _sfxScope.Span;
-                sfxSpan.SetTag("span.kind", "server");
-                sfxSpan.SetTag("component", "dotnet-lambda-wrapper");
-                sfxSpan.SetTag("aws_request_id", lambdaContext.AwsRequestId);
+                var otSpan = _otScope.Span;
                 foreach (var kvp in commonTags)
                 {
-                    sfxSpan.SetTag(kvp.Key, kvp.Value);
+                    otSpan.SetTag(kvp.Key, kvp.Value);
                 }
 
                 if (coldStart)
                 {
-                    sfxSpan.SetTag("cold_start", "true");
+                    otSpan.SetTag("cold_start", "true");
                 }
 
                 if (tags != null)
                 {
                     foreach (var kvp in tags)
                     {
-                        sfxSpan.SetTag(kvp.Key, kvp.Value);
+                        otSpan.SetTag(kvp.Key, kvp.Value);
                     }
                 }
             }
@@ -91,7 +105,7 @@ namespace SignalFx.LambdaWrapper
         public void Dispose()
         {
             _metricWrapper?.Dispose();
-            _sfxScope?.Dispose();
+            _otScope?.Dispose();
         }
 
         internal void SetErrorCounter()
@@ -103,12 +117,8 @@ namespace SignalFx.LambdaWrapper
         {
             _metricWrapper?.Error();
 
-            if (_sfxScope != null)
-            {
-                // Use SignalFx Span type to leverage the helper method to set error information tags.
-                var sfxSpan = _sfxScope.Span;
-                sfxSpan.SetException(exception);
-            }
+            // Use SignalFx Span type to leverage the helper method to set error information tags.
+            s_sfxTracer?.ActiveScope?.Span?.SetException(exception);
         }
     }
 }

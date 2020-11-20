@@ -68,11 +68,11 @@ namespace SampleServerlessASPNETCore.Tests
             try
             {
                 TelemetryConfiguration.ContextPropagationEnabled = true;
-                request.MultiValueHeaders = new Dictionary<string, IList<string>>
+                request.Headers = new Dictionary<string, string>
                 {
-                    { HttpHeaderNames.B3TraceId, new List<string> { propagatedTraceId }},
-                    { HttpHeaderNames.B3SpanId, new List<string> { parentSpanId }},
-                    { HttpHeaderNames.B3Sampled, new List<string> { "1" }},
+                    { HttpHeaderNames.B3TraceId, propagatedTraceId },
+                    { HttpHeaderNames.B3SpanId, parentSpanId },
+                    { HttpHeaderNames.B3Sampled, "1" },
                 };
 
                 spans = BackendMock.CollectSpans(
@@ -99,8 +99,8 @@ namespace SampleServerlessASPNETCore.Tests
             Assert.Equal("GET", httpMethod);
 
             // Check context propagation.
-            Assert.Equal(propagatedTraceId, span.TraceId.ToString("x16"));
             Assert.True(span.ParentId.HasValue);
+            Assert.Equal(propagatedTraceId, span.TraceId.ToString("x16"));
             Assert.Equal(parentSpanId, span.ParentId.Value.ToString("x16"));
         }
 

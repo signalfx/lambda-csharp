@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
-using SignalFx.Tracing.Headers;
 
 namespace SignalFx.LambdaWrapper
 {
@@ -104,13 +103,7 @@ namespace SignalFx.LambdaWrapper
             string operationName = null,
             IEnumerable<KeyValuePair<string, string>> tags = null)
         {
-            IHeadersCollection headersCollection = null;
-            if (TelemetryConfiguration.ContextPropagationEnabled)
-            {
-                headersCollection = new DictionaryHeadersCollection(request.MultiValueHeaders);
-            }
-
-            using (var tracker = new TelemetryTracker(context, operationName, tags, headersCollection))
+            using (var tracker = new TelemetryTracker(context, operationName, tags, request.Headers))
             {
                 try
                 {
@@ -140,13 +133,7 @@ namespace SignalFx.LambdaWrapper
             string operationName = null,
             IDictionary<string, string> tags = null)
         {
-            IHeadersCollection headersCollection = null;
-            if (TelemetryConfiguration.ContextPropagationEnabled)
-            {
-                headersCollection = new CommaDelimitedValueHeaders(request.Headers);
-            }
-
-            using (var tracker = new TelemetryTracker(context, operationName, tags, headersCollection))
+            using (var tracker = new TelemetryTracker(context, operationName, tags, request.Headers))
             {
                 try
                 {
