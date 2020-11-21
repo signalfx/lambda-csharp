@@ -1,0 +1,75 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0
+
+commands:
+  install_dotnet:
+    steps:
+      - run:
+          name: Install dotnet SDK
+          command: |
+            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+            sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
+            sudo apt-get update
+            sudo apt-get install -y dotnet-sdk-3.1
+
+  build:
+    steps:
+      - checkout
+      - run:
+          name: Restore
+          command: dotnet restore SignalFx.LambdaWrapper.sln
+      - run:
+          name: Build
+          command: dotnet build  -c Release -warnAsMessage:msb3277 SignalFx.LambdaWrapper.sln
+
+  test:
+    steps:
+      - run:
+          name: SampleLambdaFunctions.Tests
+          command: dotnet test -c Release test/SampleLambdaFunctions.Tests/SampleLambdaFunctions.Tests.csproj 
+      - run:
+          name: SampleServerlessASPNETCore.Tests
+          command: dotnet test -c Release test/SampleServerlessASPNETCore.Tests/SampleServerlessASPNETCore.Tests.csproj 
+      - run:
+          name: SampleServerlessHttpApiV2ASPNETCore.Tests
+          command: dotnet test -c Release test/SampleServerlessHttpApiV2ASPNETCore.Tests/SampleServerlessHttpApiV2ASPNETCore.Tests.csproj 
+      - run:
+          name: SignalFx.LambdaWrapper.Tests
+          command: dotnet test -c Release test/SignalFx.LambdaWrapper.Tests/SignalFx.LambdaWrapper.Tests.csproj
+
+  build_nuget:
+    steps:
+      - run:
+          name: Build NuGet Package
+          command: dotnet pack src/SignalFx.LambdaWrapper/SignalFx.LambdaWrapper.csproj -c Release -o bin/package 
+
+jobs:
+  Linux:
+    machine:
+      image: ubuntu-2004:202008-01
+    steps:
+      - install_dotnet
+      - build
+      - test
+      - build_nuget
+
+  Windows:
+    executor: 
+      name: win/default
+      shell: cmd.exe
+
+    steps:
+      - build
+      - test
+      - build_nuget
+      - store_artifacts:
+          path: C:\Users\circleci\project\bin\package\
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - Linux
+      - Windows

@@ -1,0 +1,10 @@
+{
+  "FunctionName": "dotnet-serverless-test-AspNetCoreFunction-1P0EHRV6LE6I2",
+  "FunctionVersion": "$LATEST",
+  "LogGroupName": "/aws/lambda/dotnet-serverless-test-AspNetCoreFunction-1P0EHRV6LE6I2",
+  "LogStreamName": "2020/11/10/[$LATEST]6c7de3a2261c440d9bb1be72eac1aa7e",
+  "MemoryLimitInMB": 256,
+  "AwsRequestId": "2ab82541-366f-4d78-abc3-f1734743ebff",
+  "InvokedFunctionArn": "arn:aws:lambda:us-west-2:123456789012:function:dotnet-serverless-test-AspNetCoreFunction-1P0EHRV6LE6I2",
+  "RemainingTime": "00:00:27.9140000"
+}

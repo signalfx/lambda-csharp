@@ -1,0 +1,16 @@
+
+{
+    "Information" : [
+        "Sample AWS Lambda using .NET with SignalFx Lambda Wrappers.",
+        "See https://github.com/signalfx/lambda-csharp"
+    ],
+    "profile"     : "",
+    "region"      : "",
+    "configuration" : "Release",
+    "framework"     : "netcoreapp3.1",
+    "function-runtime" : "dotnetcore3.1",
+    "function-memory-size" : 256,
+    "function-timeout"     : 30,
+    "function-handler"     : "SampleLambdaFunctions::SampleLambdaFunctions.Functions::AsyncFunctionWithReturn",
+    "function-name"        : "sample-lambda-functions"
+}

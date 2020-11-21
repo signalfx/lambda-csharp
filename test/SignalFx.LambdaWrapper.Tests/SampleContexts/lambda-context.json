@@ -1,0 +1,10 @@
+{
+  "FunctionName": "sample-lambda-functions",
+  "FunctionVersion": "$LATEST",
+  "LogGroupName": "/aws/lambda/sample-lambda-functions",
+  "LogStreamName": "2020/11/10/[$LATEST]38c80fa301e24f528bac651aee2081e5",
+  "MemoryLimitInMB": 256,
+  "AwsRequestId": "33d46d0c-297f-44ec-84f6-d69737d65553",
+  "InvokedFunctionArn": "arn:aws:lambda:us-west-2:123456789012:function:sample-lambda-functions",
+  "RemainingTime": "00:00:27.5150000"
+}

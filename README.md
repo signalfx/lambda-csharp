@@ -2,51 +2,203 @@
 
 ## Overview
 
-You can use this document to add a SignalFx wrapper to your AWS Lambda for C#.
+You can use this document to add a SignalFx wrapper to your AWS Lambda for .NET.
 
-The SignalFx C# Lambda Wrapper wraps around an AWS Lambda C# function handler, which allows metrics to be sent to SignalFx.
+The SignalFx C# Lambda Wrapper wraps around an AWS Lambda .NET function handler, which allows metrics and traces to be sent to SignalFx.
 
-## Step 1: Install via NuGet
+At a high-level, to add a SignalFx .NET Lambda wrapper, you can:
+   * Package the code yourself; or
+   * Use a Lambda layer containing the wrapper, and then attach the layer to a Lambda function.
 
-1. Add the following package reference to `.csproj` or `function.proj`:
-```xml
-  <PackageReference Include="signalfx-lambda-functions" Version="2.0.1"/>
+To learn more about Lambda Layers, please visit the [AWS documentation site](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+
+## Step 1: Add the wrapper to the project
+
+Add the [`signalfx-lambda-functions` NuGet package](https://www.nuget.org/packages/signalfx-lambda-functions/) to your project.
+
+For advanced users who want to reduce the size of deployment packages, you can use the package as a developer dependency, but in production, you would add the wrapper to a layer in the Lambda environment. This option allows you to work with the wrapper in a local setting and reduce the size of deployment packages at the same time.
+
+### Option 1: For AWS Serverless ASP.NET Core Lambda
+
+In this option, perform the following steps:
+
+1. Change the base class of your `LambdaEntryPoint` to the corresponding wrapper class:
+
+| Original AWS Base Type | Wrapper Type |
+| ----------------------- | ------------------------------------------------ |
+| APIGatewayProxyFunction | APIGatewayProxyFunctionWrapper |
+| APIGatewayHttpApiV2ProxyFunction | APIGatewayHttpApiV2ProxyFunctionWrapper |
+
+2. Add the `TracingDecoratorFilter` to the filters of your ASP.NET Core application to enrich the span data. That is done by updating the `Startup.ConfigureServices` method, example:
+
+```c#
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // Add the tracing decorator to enrich span data.
+            services.AddControllers(config => config.Filters.Add(new TracingDecoratorFilter()));
+        }
 ```
 
-The `signalfx-lambda-functions` has the following package dependencies; your package manager should add these package dependencies automatically to your project:
+Check the sample projects below for working examples:
 
-  * `Amazon.Lambda` 
-  * `Amazon.Lambda.AspNetCoreServer` 
-  * `protobuf-net` 
-    
-2. Verify that `protobut-net` has been added. If `protobut-net` is missing, then reference the `protobut-net` package as a dependency in your project, similar to Step 1. 
+- [Sample ASP.NET Core AWS HttpApi V1](./src/SampleServerlessASPNETCore)
+- [Sample ASP.NET Core AWS HttpApi V2](./src/SampleServerlessHttpApiV2ASPNETCore/)
 
-## Step 2: Locate the ingest endpoint
+### Option 2: AWS .NET Lambda function
 
-By default, this function wrapper will send data to the us0 realm. As a result, if you are not in the us0 realm and you want to use the ingest endpoint directly, then you must explicitly set your realm. 
+Manually add the wrapper to the code of the function type:
 
-To locate your realm:
+```c#
+        // Static reference to the SignalFx function wrapper.
+        private static FunctionWrapper s_functionWrapper = new FunctionWrapper();
+
+        ...
+
+        /// <summary>
+        /// This is the modified handler to use the wrapper over a non-void synchronous function.
+        /// </summary>
+        public string FunctionWithReturn(string input, ILambdaContext context)
+        {
+            return s_functionWrapper.Invoke(OriginalFunctionWithReturn, input, context);
+        }
+```
+
+Check the sample project for a working example:
+
+- [Sample Lambda Functions](./src/SampleLambdaFunctions)
+
+The are overloads of the `Invoke` method with different signatures to support the typical function signatures and specific ones to support API Gateway functions:
+
+- `InvokeAPIGatewayProxyAsync`
+- `InvokeAPIGatewayHttpApiV2ProxyAsync`
+
+All of the methods above support enrichment of spans via optional parameters:
+
+- `operationName` allows a custom and more friendly name for the span, if not specified defaults to the Lambda function name.
+- `tags` lists extra key value pairs to be added to the span.
+
+## Step 2: Locate your organization's realm and access token
+
+Use the realm to configure the ingest endpoint. Follow these steps to locate your realm:
 
 1. Open SignalFx and in the top, right corner, click your profile icon.
 2. Click **My Profile**.
 3. Next to **Organizations**, review the listed realm.
 
-To set your realm, use a subdomain, such as ingest.us1.signalfx.com or ingest.eu0.signalfx.com. You will use the realm subdomain to set `SIGNALFX_API_HOSTNAME` variable in the next step.
+Use the access token to associate the data to your organization. Follow these steps to get an access token:
 
-## Step 3: Set Lambda function environment variables
+1. Open SignalFx and in the top, right corner, click your profile icon.
+2. Click **My Profile**.
+3. On the left panel click **Access Tokens**, select or create a new token as appropriate.
 
-1. Set authentication token:
-    ```text
-     SIGNALFX_AUTH_TOKEN=signalfx token
+## Step 3: Set Lambda Function environment variables
+
+Follow these steps to configure your access token and ingest endpoint:
+
+1. Set `SIGNALFX_ACCESS_TOKEN` with your access token: 
+    ```bash
+     SIGNALFX_ACCESS_TOKEN=<access-token>
     ```
-2. Review optional parameters: 
-    ```text
-     SIGNALFX_API_HOSTNAME=[ingest.us0.signalfx.com]
-     SIGNALFX_API_PORT=[443]
-     SIGNALFX_API_SCHEME=[https]
-     SIGNALFX_SEND_TIMEOUT=milliseconds for signalfx client timeout [2000]
+
+2. Set `SIGNALFX_ENDPOINT_URL` with your organization's realm:
+    ```bash
+     SIGNALFX_ENDPOINT_URL=https://ingest.<realm>.signalfx.com
     ```
-    (When you set `SIGNALFX_API_HOSTNAME`, you must reference your correct realm from Step 2.)
+
+If you're sending data to an OpenTelemetry Collector, you have to specify the full path like this: `http://<otel-collector-host>:9411/api/v2/spans`
+
+3. (Optional) Globally enable/disable metrics and/or tracing by setting SIGNALFX_TRACING_ENABLED and/or SIGNALFX_METRICS_ENABLED.
+    ```bash
+    SIGNALFX_TRACING_ENABLED=true  [defaults to true]
+    SIGNALFX_METRICS_ENABLED=false [defaults to false]
+    ```
+
+4. (Optional) Enable context propagation (currently only supports B3 propagation).
+    ```bash
+    SIGNALFX_CTX_PROPAGATION_ENABLED=true [defaults to true]
+    ```
+
+5. (Optional) Specify other environment variables to better configure the traces.
+For a list of all the available configuration options available, see
+[Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net). 
+
+## (Optional) Step 4: Reduce the size of deployment packages with AWS Lambda layers
+
+For advanced users who want to reduce the size of deployment packages, please visit the AWS documentation site and see [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+
+SignalFx hosts layers containing this wrapper in most AWS regions. To review the latest available version for your region, see [the list of versions](https://github.com/signalfx/lambda-layer-versions/blob/master/csharp/CSHARP.md).
+
+After you locate the appropriate layer version, please visit the AWS documentation site and follow [AWS instructions to deploy .NET Core Lambda with the layer](https://aws.amazon.com/blogs/developer/aws-lambda-layers-with-net-core/).
+
+## Additional information and optional steps
+
+### Metrics and dimensions sent by the wrapper
+
+The Lambda wrapper sends the following metrics to SignalFx:
+
+| Metric Name  | Type | Description |
+| ------------- | ------------- | ---|
+| function.invocations  | Counter  | Count number of Lambda invocations|
+| function.cold_starts  | Counter  | Count number of cold starts|
+| function.errors  | Counter  | Count number of errors from underlying Lambda handler|
+| function.duration  | Gauge  | Milliseconds in execution time of underlying Lambda handler|
+
+The Lambda wrapper adds the following dimensions to all data points sent to SignalFx:
+
+| Dimension | Description |
+| ------------- | ---|
+| lambda_arn  | ARN of the Lambda function instance |
+| aws_region  | AWS Region  |
+| aws_account_id | AWS Account ID  |
+| aws_function_name  | AWS Function Name |
+| aws_function_version  | AWS Function Version |
+| aws_function_qualifier  | AWS Function Version Qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
+| event_source_mappings  | AWS Function Name (if it is an event source mapping Lambda invocation) |
+| aws_execution_env  | AWS execution environment (e.g. AWS_Lambda_dotnetcore3.1) |
+| function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx_lambda_3.0.0.0) |
+| metric_source | The literal value of 'lambda_wrapper' |
+
+### Tags sent by the tracing wrapper 
+
+The tracing wrapper creates a span for the wrapper handler. This span contains the following tags:
+
+| Tag | Description |
+|-|-|
+| aws_request_id | AWS Request ID |
+| lambda_arn | ARN of the Lambda function instance |
+| aws_region | AWS region |
+| aws_account_id | AWS account ID |
+| aws_function_name | AWS function name |
+| aws_function_version | AWS function version |
+| aws_function_qualifier | AWS function version qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
+| event_source_mappings | AWS function name (if it is an event source mapping Lambda invocation) |
+| aws_execution_env | AWS execution environment (e.g., AWS_Lambda_dotnetcore3.1) |
+| function_wrapper_version | SignalFx function wrapper qualifier (e.g., ignalfx_lambda_3.0.0.0) |
+| component | The literal value of 'dotnet-lambda-wrapper |
+
+### Adding extra tags and enriching traces
+
+There are several ways to add extra tags or enrich the traces of your service:
+
+1. Where available use the optional parameters of the wrapper to pass extra tags via the `tags` parameter or update the span name via the `operationName` parameter.
+
+2. For ASP.NET Core applications you can add custom action filters to add tags or various other operations available to manual instrumentation.
+Use the [TracingDecoratorFilter](./src/SignalFx.LambdaWrapper/AspNetCoreServer/TracingDecoratorFilter.cs) as a starting point for your own implementation.
+
+3. Use OpenTracing anywhere in your application to add tags, spans, or do context propagation as appropriate. Use the [SignalFx examples](https://github.com/signalfx/tracing-examples/tree/master/dotnet-manual-instrumentation) as a starting point.
+Notice that no package needs to be added to the project since `signalfx-lambda-functions` already brings the OpenTracing library.
+
+## Configuration settings for the legacy metrics wrapper
+
+The configuration settings for the Metric Wrapper from version 2.0.1 are still supported. However, you should migrate to the latest version if possible.
+
+| Legacy Environment Variable | Default Value / Comments |
+| --------------------------- | ------------------------ |
+| SIGNALFX_AUTH_TOKEN | No default, use SIGNALFX_ACCESS_TOKEN |
+| SIGNALFX_API_HOSTNAME | Default is `ingest.us0.signalfx.com`. When you set `SIGNALFX_API_HOSTNAME`, you must reference your realm. |
+| SIGNALFX_API_PORT | Default is `443` |
+| SIGNALFX_API_SCHEME | Default is `https` |
+| SIGNALFX_SEND_TIMEOUT | Default is `2000` |
 
 3. Review optional parameters for ASP.Net Core Web API with Lambda:
     ```text
@@ -54,13 +206,13 @@ To set your realm, use a subdomain, such as ingest.us1.signalfx.com or ingest.eu
      DNS_REFRESH_TIMEOUT=milliseconds for DNS refresh timeout [5000]
     ``` 
 
-## Step 4: Wrap the function
+### Manually wrapp metrics with the legacy metrics wrapper
 
-To wrap the function, review the following options. 
+The legacy metrics wrapper offered the the following options. 
 
-### Option 1: Wrap the function manually
+#### Option 1: Wrap the function manually
 
-With this option, you will define a Lambda handler method and explicitly send metrics to SignalFx. To accomplish this, you will create a MetricWrapper with the ExecutionContext Wrap in your code with try-catch-finally and dispose of the wrapper finally.
+With this option, you will define a Lambda handler method and explicitly send metrics to SignalFx. To accomplish this, you will create a MetricWrapper with the context Wrap in your code with try-catch-finally and dispose of the wrapper finally.
 
 Review the following example: 
 
@@ -70,8 +222,7 @@ using SignalFx.LambdaWrapper
 
 ...
 
-[FunctionName("HttpTrigger")]
-public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, TraceWriter log, ExecutionContext context)
+public TOutput YourFunction(TInput input, ILambdaContext context)
 {
     log.Info("C# HTTP trigger function processed a request.");
     MetricWrapper wrapper = new MetricWrapper(context);
@@ -88,11 +239,11 @@ public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get",
 }
 ```
 
-### Option 2: Use SignalFx FunctionWrapper
+#### Option 2: Use SignalFx function wrapper
 
 With this option, you will extend `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction` and `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` to send metrics to SignalFx. 
 
-With this option, you will  **not** need to explicitly define the logic for sending metrics.
+With this option, you will  **not** need to explicitly define the logic for sending telemetry.
 
 Review the following example: 
 
@@ -108,11 +259,11 @@ public class LambdaEntryPoint : SignalFx.LambdaWrapper.AspNetCoreServer.APIGatew
 
 Please note that:
   * `SignalFx.LambdaWrapper.AspNetCoreServer.APIGatewayProxyFunctionWrapper` extends `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction`. 
-  * The Lambda context object `Amazon.Lambda.Core.ILambdaContext` that provides metric dimensions is not available in the Web API Controllers layer on down.
+  * The Lambda context object `Amazon.Lambda.Core.ILambdaContext` provides telemetry data that's not available in the Web API Controllers layer on down.
 
-## (Optional) Step 5: Send custom metrics from the Lambda function 
+###  Option 3: Send custom metrics from the Lambda function  
 
-1. Review the following example to understand how to send custom metrics from a defined Lambda handler when the Lambda context object is available:
+1. This option is only available on versions prior to 3.0.0. Review the following example to understand how to send custom metrics from a defined Lambda handler when the Lambda context object is available:
 
     ```cs
     using com.signalfuse.metrics.protobuf;
@@ -170,41 +321,6 @@ Please note that:
         }
         ...
     ```
-## (Optional) Step 6: Reduce the size of deployment packages with AWS Lambda Layers
-
-1. For advanced users who want to reduce the size of deployment packages, please visit the AWS documentation site and see [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
-
-2. SignalFx hosts layers containing this wrapper in most AWS regions. To review the latest available version for your region, see [the list of versions](https://github.com/signalfx/lambda-layer-versions/blob/master/csharp/CSHARP.md).
-
-3. After you locate the appropriate layer version, please visit the AWS documentation site and follow [AWS instructions to deploy .NET Core Lambda with the layer](https://aws.amazon.com/blogs/developer/aws-lambda-layers-with-net-core/).
-
-## Additional information and optional steps
-
-### Metrics and dimensions sent by the wrapper
-The Lambda wrapper sends the following metrics to SignalFx:
-
-| Metric Name  | Type | Description |
-| ------------- | ------------- | ---|
-| function.invocations  | Counter  | Count number of Lambda invocations|
-| function.cold_starts  | Counter  | Count number of cold starts|
-| function.errors  | Counter  | Count number of errors from underlying Lambda handler|
-| function.duration  | Gauge  | Milliseconds in execution time of underlying Lambda handler|
-
-The Lambda wrapper adds the following dimensions to all data points sent to SignalFx:
-
-| Dimension | Description |
-| ------------- | ---|
-| lambda_arn  | ARN of the Lambda function instance |
-| aws_region  | AWS Region  |
-| aws_account_id | AWS Account ID  |
-| aws_function_name  | AWS Function Name |
-| aws_function_version  | AWS Function Version |
-| aws_function_qualifier  | AWS Function Version Qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
-| event_source_mappings  | AWS Function Name (if it is an event source mapping Lambda invocation) |
-| aws_execution_env  | AWS execution environment (e.g. AWS_Lambda_java8) |
-| function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx-lambda-0.0.5) |
-| metric_source | The literal value of 'lambda_wrapper' |
-
 
 ### Test locally
 1. Review the following document from AWS: [Introducing AWS SAM Local, a CLI Tool to Test AWS Lambda Functions Locally](https://aws.amazon.com/about-aws/whats-new/2017/08/introducing-aws-sam-local-a-cli-tool-to-test-aws-lambda-functions-locally/).
