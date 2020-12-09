@@ -49,6 +49,12 @@ namespace SignalFx.LambdaWrapper
         {
         }
 
+        public void AddDataPoint(DataPoint dataPoint)
+        {
+            dataPoint.dimensions.AddRange(_defaultDimensions);
+            _metricsBatch.Add(dataPoint);
+        }
+
         internal MetricWrapper(List<KeyValuePair<string, string>> commonTags, ISignalFxReporter reporter = null)
         {
             _defaultDimensions = GetDefaultDimensions(commonTags);
