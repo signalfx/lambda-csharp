@@ -155,7 +155,7 @@ The Lambda wrapper adds the following dimensions to all data points sent to Sign
 | aws_function_qualifier  | AWS Function Version Qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
 | event_source_mappings  | AWS Function Name (if it is an event source mapping Lambda invocation) |
 | aws_execution_env  | AWS execution environment (e.g. AWS_Lambda_dotnetcore3.1) |
-| function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx_lambda_3.0.0.0) |
+| function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx_lambda_3.0.1.0) |
 | metric_source | The literal value of 'lambda_wrapper' |
 
 ### Tags sent by the tracing wrapper 
@@ -173,7 +173,7 @@ The tracing wrapper creates a span for the wrapper handler. This span contains t
 | aws_function_qualifier | AWS function version qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
 | event_source_mappings | AWS function name (if it is an event source mapping Lambda invocation) |
 | aws_execution_env | AWS execution environment (e.g., AWS_Lambda_dotnetcore3.1) |
-| function_wrapper_version | SignalFx function wrapper qualifier (e.g., ignalfx_lambda_3.0.0.0) |
+| function_wrapper_version | SignalFx function wrapper qualifier (e.g., ignalfx_lambda_3.0.1.0) |
 | component | The literal value of 'dotnet-lambda-wrapper |
 
 ### Adding extra tags and enriching traces

@@ -56,7 +56,7 @@ namespace SignalFx.LambdaWrapper.Tests
                 { "aws_region", "us-west-2" },
                 { "aws_account_id", "123456789012" },
                 { "lambda_arn", "arn:aws:lambda:us-west-2:123456789012:function:sample-lambda-functions:$LATEST" }, //
-                { "function_wrapper_version", "signalfx_lambda_3.0.0.0" },
+                { "function_wrapper_version", "signalfx_lambda_3.0.1.0" },
                 { "metric_source", "lambda_wrapper" },
             };
 
