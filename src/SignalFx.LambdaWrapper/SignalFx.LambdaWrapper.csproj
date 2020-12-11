@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>3.0.1-rc.0</Version>
+        <Version>3.0.1.0</Version>
         <AssemblyVersion>3.0.1</AssemblyVersion>
         <Title>SignalFx AWS Lambda Wrapper C#</Title>
         <Company>SignalFx</Company>
