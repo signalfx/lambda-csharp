@@ -25,6 +25,14 @@ namespace SignalFx.LambdaWrapper.Tests
 
             using (var wrapper = new MetricWrapper(context, mockSender.Object))
             {
+                // Add a custom data point.
+                DataPoint dp = new DataPoint();
+                dp.metric = "custom.gauge";
+                dp.metricType = MetricType.GAUGE;
+                dp.value = new Datum { intValue = 1 };
+                dp.timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                wrapper.AddDataPoint(dp);
+
                 try
                 {
                     if (throwException)
@@ -48,7 +56,7 @@ namespace SignalFx.LambdaWrapper.Tests
                 { "aws_region", "us-west-2" },
                 { "aws_account_id", "123456789012" },
                 { "lambda_arn", "arn:aws:lambda:us-west-2:123456789012:function:sample-lambda-functions:$LATEST" }, //
-                { "function_wrapper_version", "signalfx_lambda_3.0.0.0" },
+                { "function_wrapper_version", "signalfx_lambda_3.0.1.0" },
                 { "metric_source", "lambda_wrapper" },
             };
 
@@ -64,6 +72,7 @@ namespace SignalFx.LambdaWrapper.Tests
             {
                 new { Name = "function.invocations", MetricType = MetricType.COUNTER },
                 new { Name = "function.duration", MetricType = MetricType.GAUGE },
+                new { Name = "custom.gauge", MetricType = MetricType.GAUGE },
             };
 
             if (throwException)

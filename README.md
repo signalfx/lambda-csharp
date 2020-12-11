@@ -155,7 +155,7 @@ The Lambda wrapper adds the following dimensions to all data points sent to Sign
 | aws_function_qualifier  | AWS Function Version Qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
 | event_source_mappings  | AWS Function Name (if it is an event source mapping Lambda invocation) |
 | aws_execution_env  | AWS execution environment (e.g. AWS_Lambda_dotnetcore3.1) |
-| function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx_lambda_3.0.0.0) |
+| function_wrapper_version  | SignalFx function wrapper qualifier (e.g. signalfx_lambda_3.0.1.0) |
 | metric_source | The literal value of 'lambda_wrapper' |
 
 ### Tags sent by the tracing wrapper 
@@ -173,7 +173,7 @@ The tracing wrapper creates a span for the wrapper handler. This span contains t
 | aws_function_qualifier | AWS function version qualifier (version or version alias if it is not an event source mapping Lambda invocation) |
 | event_source_mappings | AWS function name (if it is an event source mapping Lambda invocation) |
 | aws_execution_env | AWS execution environment (e.g., AWS_Lambda_dotnetcore3.1) |
-| function_wrapper_version | SignalFx function wrapper qualifier (e.g., ignalfx_lambda_3.0.0.0) |
+| function_wrapper_version | SignalFx function wrapper qualifier (e.g., ignalfx_lambda_3.0.1.0) |
 | component | The literal value of 'dotnet-lambda-wrapper |
 
 ### Adding extra tags and enriching traces
@@ -267,28 +267,40 @@ Please note that:
 
     ```cs
     using com.signalfuse.metrics.protobuf;
+    ...
+    log.Info("C# HTTP trigger function processed a request.");
+    MetricWrapper wrapper = new MetricWrapper(context);
+    try { 
+        ...
+        // construct a data point
+        DataPoint dp = new DataPoint();
     
-    // construct a data point
-    DataPoint dp = new DataPoint();
+        // use Datum to set the value
+        Datum datum = new Datum();
+        datum.intValue = 1;
     
-    // use Datum to set the value
-    Datum datum = new Datum();
-    datum.intValue = 1;
+        // set the name, value, and metric type on the datapoint
     
-    // set the name, value, and metric type on the datapoint
+        dp.metric = "metric_name";
+        dp.metricType = MetricType.GAUGE;
+        dp.value = datum;
     
-    dp.metric = "metric_name";
-    dp.metricType = MetricType.GAUGE;
-    dp.value = datum;
+        // add custom dimension
+        Dimension dim = new Dimension();
+        dim.key = "applicationName";
+        dim.value = "CoolApp";
+        dp.dimensions.Add(dim);
     
-    // add custom dimension
-    Dimension dim = new Dimension();
-    dim.key = "applicationName";
-    dim.value = "CoolApp";
-    dp.dimensions.Add(dim);
-    
-    // send the metric
-    MetricSender.sendMetric(dp);
+        // send the metric
+        // on version 3.0.1 and above use wrapper.AddDataPoint(dp);
+        MetricSender.sendMetric(dp);
+        ...
+        return ResponseObject
+    } catch (Exception e) {
+      wrapper.Error();
+    } finally {
+      wrapper.Dispose();
+    }
     ```
 
 2. Review the following example to understand how to send custom metrics in the Web API Controller Layer on down for `ASP.Net Core Web API with Lambda` implementations when the Lambda context object is **not** available. In short, the SignalFx C# Lambda Wrapper provides a `SignalFx.LambdaWrapper.AspNetCoreServer.Extensions.AddMetricDataPoint()` extension method for  `Microsoft.AspNetCoreServer.Http.HttpResponse` type to export metric datapoints to SignalFx. 
