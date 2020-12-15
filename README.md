@@ -158,7 +158,6 @@ The Examples below use `netcoreapp3.1` as the target framework but `netcoreapp2.
             --function-layers <arn-from-step-1>
     ```
 
-3. Set the environment variable `DOTNET_SHARED_STORE` to `/opt/dotnetcore/store/` for the Lambda
 If you want detailed information about using AWS Lambda Layers with .NET Core, please visit
 [Layers for .NET Core Lambda Functions]https://github.com/aws/aws-extensions-for-dotnet-cli/blob/master/docs/Layers.md#layers-for-net-core-lambda-functions).
 
