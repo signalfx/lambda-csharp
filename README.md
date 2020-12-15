@@ -159,7 +159,7 @@ The Examples below use `netcoreapp3.1` as the target framework but `netcoreapp2.
     ```
 
 If you want detailed information about using AWS Lambda Layers with .NET Core, please visit
-[Layers for .NET Core Lambda Functions]https://github.com/aws/aws-extensions-for-dotnet-cli/blob/master/docs/Layers.md#layers-for-net-core-lambda-functions).
+[Layers for .NET Core Lambda Functions](https://github.com/aws/aws-extensions-for-dotnet-cli/blob/master/docs/Layers.md#layers-for-net-core-lambda-functions).
 
 ## Additional information and optional steps
 
