@@ -124,11 +124,42 @@ For a list of all the available configuration options available, see
 
 ## (Optional) Step 4: Reduce the size of deployment packages with AWS Lambda layers
 
-For advanced users who want to reduce the size of deployment packages, please visit the AWS documentation site and see [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+Add a layer that includes the SignalFx Lambda wrapper to your Lambda function.
+A layer is code and other content that you can run without including it in your deployment package.
+SignalFx provides layers in all supported regions you can freely use.
 
-SignalFx hosts layers containing this wrapper in most AWS regions. To review the latest available version for your region, see [the list of versions](https://github.com/signalfx/lambda-layer-versions/blob/master/csharp/CSHARP.md).
+Follow these steps to use the SignalFx .NET Lambda Wrapper layer.
 
-After you locate the appropriate layer version, please visit the AWS documentation site and follow [AWS instructions to deploy .NET Core Lambda with the layer](https://aws.amazon.com/blogs/developer/aws-lambda-layers-with-net-core/).
+1. Get the ARN layer according to the deployment region and .NET runtime of your Lambda:
+    - [NetCoreApp 2.1](https://github.com/signalfx/lambda-layer-versions/blob/master/csharp/CSHARP-NetCoreApp21.md)
+    - [NetCoreApp 3.1](https://github.com/signalfx/lambda-layer-versions/blob/master/csharp/CSHARP-NetCoreApp31.md)
+
+2. Update the Lambda to use the layer:
+    - Add the environment variable `DOTNET_SHARED_STORE` to `/opt/dotnetcore/store/` to Lambda configuration;
+    - Explicitly set `framework` and `function-runtime` to ensure proper deployment;
+    - Add the layer ARN from step 1 to the set of layers used by the Lambda;
+
+All the updates above can be done using the Lambda configuration file
+or the [AWS Extensions for .NET CLI](https://github.com/aws/aws-extensions-for-dotnet-cli#aws-extensions-for-net-cli).
+The Examples below use `netcoreapp3.1` as the target framework but `netcoreapp2.1` is also supported.
+
+- Using the `json` configuration file (by default named `aws-lambda-tools-defaults.json`):
+    ```json
+            "environment-variables" : "\"DOTNET_SHARED_STORE\"=\"/opt/dotnetcore/store/\"",
+            "framework"             : "netcoreapp3.1",
+            "function-runtime"      : "dotnetcore3.1",
+            "function-layers"       : "<arn-from-step-1>",
+    ```
+- The `AWS Extensions for .NET CLI` CLI used to build and deploy your lambda by adding the parameter:
+    ```terminal
+            --environment-variables DOTNET_SHARED_STORE=/opt/dotnetcore/store/ 
+            --framework netcoreapp3.1
+            --function-runtime dotnetcore3.1
+            --function-layers <arn-from-step-1>
+    ```
+
+If you want detailed information about using AWS Lambda Layers with .NET Core, please visit
+[Layers for .NET Core Lambda Functions](https://github.com/aws/aws-extensions-for-dotnet-cli/blob/master/docs/Layers.md#layers-for-net-core-lambda-functions).
 
 ## Additional information and optional steps
 
