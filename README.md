@@ -1,7 +1,7 @@
 # SignalFx .NET Lambda Wrapper
 
 The SignalFx .NET Lambda Wrapper wraps around an AWS Lambda .NET or ASP.NET Core
-function handler, which enables you to send metrics and traces to Splunk APM.
+function handler. This enables you to send metrics and traces to Splunk APM.
 
 The Lambda wrapper manually instruments the Lambda function itself, and not
 any libraries or frameworks. To get traces from libraries and frameworks in
