@@ -108,7 +108,7 @@ To find which realm you're in, go to **Settings > My Profile**.
 To find or create an access token for your organization, go to
 **Settings > Organization Settings > Access Tokens**.
 
-## Step 3: Set Lambda Function environment variables
+### Step 3: Set Lambda Function environment variables
 
 Follow these steps to configure your access token and ingest endpoint:
 
