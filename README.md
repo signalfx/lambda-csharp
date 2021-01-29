@@ -95,6 +95,9 @@ parameters:
 | `operationName` | Set a name for the span. If you don't specify a name, it defaults to the Lambda function name. |
 | `tags` | Specify key-value pairs to add span tags to the span. |
 
+You can also enrich spans with environment variables. For more information, see
+[Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net). 
+
 ### Step 2. Get your organization's realm and access token
 
 Use your realm to configure your ingest endpoint and an access token to
@@ -110,31 +113,42 @@ To find or create an access token for your organization, go to
 Follow these steps to configure your access token and ingest endpoint:
 
 1. Set `SIGNALFX_ACCESS_TOKEN` with your access token: 
-    ```bash
-     SIGNALFX_ACCESS_TOKEN=<access-token>
-    ```
+   ```bash
+   SIGNALFX_ACCESS_TOKEN=<access-token>
+   ```
 
 2. Set `SIGNALFX_ENDPOINT_URL` with your organization's realm:
-    ```bash
-     SIGNALFX_ENDPOINT_URL=https://ingest.<realm>.signalfx.com
-    ```
+   ```bash
+   SIGNALFX_ENDPOINT_URL=https://ingest.<realm>.signalfx.com
+   ```
 
    If you're sending data to an OpenTelemetry Collector, you have to specify
    the full path like this: `http://<otel-collector-host>:9411/api/v2/spans`
 
-3. (Optional) Globally enable metrics by setting `SIGNALFX_METRICS_ENABLED`:
-    ```bash
-    SIGNALFX_METRICS_ENABLED=true
-    ```
+3. Set `SIGNALFX_ENV` to specify the environment for the service in APM:
+   ```bash
+   SIGNALFX_ENV="yourEnvironment"
+   ```
 
-4. (Optional) Disable context propagation. The wrapper currently supports only
+4. If you didn't already specify span tags with the `tags` parameter, add add
+   span tags to each span by setting `SIGNALFX_TRACE_GLOBAL_TAGS`:
+   ```bash
+   SIGNALFX_TRACE_GLOBAL_TAGS="key1:val1,key2:val2"
+   ```
+
+5. (Optional) Globally enable metrics by setting `SIGNALFX_METRICS_ENABLED`:
+   ```bash
+   SIGNALFX_METRICS_ENABLED=true
+   ```
+
+6. (Optional) Disable context propagation. The wrapper currently supports only
    B3 context propagation. By default, you should enable context propagation.
    The option to disable this is for security considerations.
-    ```bash
-    SIGNALFX_CTX_PROPAGATION_ENABLED=false
-    ```
+   ```bash
+   SIGNALFX_CTX_PROPAGATION_ENABLED=false
+   ```
 
-5. (Optional) Specify other environment variables to better configure the traces.
+7. (Optional) Specify other environment variables to better configure the traces.
 
    For a list of all the available configuration options available, see
    [Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net). 
@@ -242,16 +256,16 @@ these tags:
 
 There are several ways to add extra tags or enrich the traces of your service:
 
-1. Pass extra tags with the `tags` parameter.
-2. Update the span name with the `operationName` parameter.
-3. For ASP.NET Core applications, add custom action filters to add tags or
-   various other operations available to manual instrumentation.
-4. Use the [TracingDecoratorFilter](./src/SignalFx.LambdaWrapper/AspNetCoreServer/TracingDecoratorFilter.cs)
-   as a starting point for your own implementation.
-5. Use OpenTracing anywhere in your application to add span tags, spans, or
-   context propagation. Use the [examples](https://github.com/signalfx/tracing-examples/tree/master/dotnet-manual-instrumentation)
-   as a starting point. You don't need to add a package the project since
-   `signalfx-lambda-functions` includes the OpenTracing library.
+- Pass span tags with the `tags` parameter.
+- Update the span name with the `operationName` parameter.
+- For ASP.NET Core applications, add custom action filters to add tags or
+  various other operations available to manual instrumentation.
+- Use the [TracingDecoratorFilter](./src/SignalFx.LambdaWrapper/AspNetCoreServer/TracingDecoratorFilter.cs)
+  as a starting point for your own implementation.
+- Use OpenTracing anywhere in your application to add span tags, spans, or
+  context propagation. Use the [examples](https://github.com/signalfx/tracing-examples/tree/master/dotnet-manual-instrumentation)
+  as a starting point. You don't need to add a package the project since
+  `signalfx-lambda-functions` includes the OpenTracing library.
 
 ## License
 
