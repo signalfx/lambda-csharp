@@ -7,10 +7,8 @@ The Lambda wrapper manually instruments the Lambda function itself, and not
 any libraries or frameworks. To get traces from libraries and frameworks in
 the Lambda function, manually instrument them.
 
-See these links for information about and examples of manual instrumentation:
-
-- https://github.com/signalfx/tracing-examples/tree/master/dotnet-manual-instrumentation
-- https://github.com/signalfx/tracing-examples/tree/master/signalfx-tracing/signalfx-dotnet-tracing
+To see manual instrumentation in action, see the
+[OpenTracing examples](https://github.com/signalfx/tracing-examples/tree/master/dotnet-manual-instrumentation).
 
 There are two options to use the SignalFx Lambda wrapper:
 
@@ -24,15 +22,13 @@ Follow these steps to add the SignalFx Lambda wrapper for .NET or ASP.NET Core.
 ### Step 1. Add the wrapper to your project
 
 Add the [`signalfx-lambda-functions` NuGet package](https://www.nuget.org/packages/signalfx-lambda-functions/)
-to your project. If you want to reduce the size of your deployment, you can
-add the package as a developer dependency, but in a production environment you
-should add the wrapper as a layer to reduce the deployment size.
+to your project.
 
 After adding the NuGet package, what to do next depends on whether you're
 instrumenting .NET or ASP.NET Core. See the following sections according to
 what you're instrumenting.
 
-#### Add the wrapper to your ASP.NET Core project
+#### Add the wrapper to your AWS Serverless ASP.NET Core project
 
 Follow these steps to add the wrapper to your ASP.NET Core Lambda function
 after adding the NuGet package. 
@@ -61,7 +57,7 @@ after adding the NuGet package.
    - [Sample ASP.NET Core AWS HttpApi V1](./src/SampleServerlessASPNETCore)
    - [Sample ASP.NET Core AWS HttpApi V2](./src/SampleServerlessHttpApiV2ASPNETCore/)
 
-#### Add the wrapper to your .NET project
+#### Add the wrapper to your AWS .NET Lambda project
 
 Manually add the wrapper to the code of the function type:
 
@@ -128,13 +124,14 @@ Follow these steps to configure your access token and ingest endpoint:
 
 3. (Optional) Globally enable metrics by setting `SIGNALFX_METRICS_ENABLED`:
     ```bash
-    SIGNALFX_METRICS_ENABLED=false [defaults to false]
+    SIGNALFX_METRICS_ENABLED=true
     ```
 
-4. (Optional) Enable context propagation. The wrapper currently supports only
-   B3 context propagation.
+4. (Optional) Disable context propagation. The wrapper currently supports only
+   B3 context propagation. By default, you should enable context propagation.
+   The option to disable this is for security considerations.
     ```bash
-    SIGNALFX_CTX_PROPAGATION_ENABLED=true [defaults to true]
+    SIGNALFX_CTX_PROPAGATION_ENABLED=false
     ```
 
 5. (Optional) Specify other environment variables to better configure the traces.
@@ -147,7 +144,9 @@ Follow these steps to configure your access token and ingest endpoint:
 Add a layer that includes the SignalFx Lambda wrapper to your Lambda function.
 A layer is code and other content that you can run without including it in
 your deployment package. SignalFx provides layers in all supported regions you
-can freely use.
+can freely use. If you want to reduce the size of your deployment, you can
+add the package as a developer dependency, but in a production environment you
+should add the wrapper as a layer to reduce the deployment size.
 
 To learn more about AWS Lambda Layers, see
 [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
