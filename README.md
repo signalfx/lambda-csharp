@@ -130,7 +130,7 @@ Follow these steps to configure your access token and ingest endpoint:
    SIGNALFX_ENV="yourEnvironment"
    ```
 
-4. If you didn't already specify span tags with the `tags` parameter, add add
+4. If you didn't already specify span tags with the `tags` parameter, add
    span tags to each span by setting `SIGNALFX_TRACE_GLOBAL_TAGS`:
    ```bash
    SIGNALFX_TRACE_GLOBAL_TAGS="key1:val1,key2:val2"
