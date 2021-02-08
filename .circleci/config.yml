@@ -50,8 +50,8 @@ commands:
       - run:
           name: Copy NuGet packages to artifacts directory
           command: |
-            mkdir -p artifacts
-            cp -a bin/package/. artifacts/
+            mkdir artifacts
+            cp -r bin/package/* artifacts
 
 jobs:
   Linux:
