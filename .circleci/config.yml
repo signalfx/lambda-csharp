@@ -80,6 +80,17 @@ jobs:
           paths:
               - artifacts
 
+  PublishGitHubRelease:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} ./artifacts/
+
   PublishNuGetPackages:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:5.0
@@ -103,6 +114,15 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - PublishGitHubRelease:
+          requires:
+            - Linux
+            - Windows
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
       - PublishNuGetPackages:
           requires:
             - Linux
