@@ -48,11 +48,10 @@ commands:
   copy_nuget_for_release:
     steps:
       - run:
-          name: Create artifacts directory
-          command: mkdir artifacts
-      - run:
           name: Copy NuGet packages to artifacts directory
-          command: cp -a bin/package/. artifacts/
+          command: |
+            mkdir -p artifacts
+            cp -a bin/package/. artifacts/
 
 jobs:
   Linux:
