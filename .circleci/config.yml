@@ -51,7 +51,7 @@ commands:
           name: Copy NuGet packages to artifacts directory
           command: |
             mkdir artifacts
-            cp -r bin/package/. artifacts/
+            xcopy bin/package artifacts/ /E
 
 jobs:
   Linux:
