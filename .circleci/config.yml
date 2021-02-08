@@ -45,6 +45,12 @@ commands:
           name: Build NuGet Package
           command: dotnet pack src/SignalFx.LambdaWrapper/SignalFx.LambdaWrapper.csproj -c Release -o bin/package 
 
+  copy_nuget_for_release:
+    steps:
+      - run:
+          name: Copy NuGet packages to artifacts directory
+          command: cp -a bin/package/. artifacts/
+
 jobs:
   Linux:
     machine:
@@ -59,17 +65,68 @@ jobs:
     executor: 
       name: win/default
       shell: cmd.exe
-
     steps:
       - build
       - test
       - build_nuget
+      - copy_nuget_for_release
       - store_artifacts:
-          path: C:\Users\circleci\project\bin\package\
+          path: artifacts
+      - persist_to_workspace:
+          root: .
+          paths:
+              - artifacts
+
+  PublishGitHubRelease:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish Release on GitHub
+          command: |
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} ./artifacts/
+
+  PublishNuGetPackages:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:5.0
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish NuGet Packages
+          command: |
+            for i in ./artifacts/*.nupkg; do dotnet nuget push $i --source "${NUGET_FEED_URL}" --api-key ${NUGET_KEY}; done
 
 workflows:
   version: 2
   build:
     jobs:
-      - Linux
-      - Windows
+      - Linux:
+          filters:
+            tags:
+              only: /.*/ # this assures that the step will be run when the tag is pushed
+      - Windows:
+          filters:
+            tags:
+              only: /.*/
+      - PublishGitHubRelease:
+          requires:
+            - Linux
+            - Windows
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
+      - PublishNuGetPackages:
+          requires:
+            - Linux
+            - Windows
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
+
