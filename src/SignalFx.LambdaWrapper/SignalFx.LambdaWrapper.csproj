@@ -5,7 +5,7 @@
         <Title>SignalFx AWS Lambda Wrapper C#</Title>
         <Company>SignalFx</Company>
         <Authors>SignalFx</Authors>
-        <Copyright>Copyright © 2014-2020 Splunk</Copyright>
+        <Copyright>Copyright © 2014-2022 Splunk</Copyright>
         <RepositoryUrl>https://github.com/signalfx/lambda-csharp</RepositoryUrl>
         <DefaultLanguage>en-US</DefaultLanguage>
         <NeutralLanguage>en-US</NeutralLanguage>
