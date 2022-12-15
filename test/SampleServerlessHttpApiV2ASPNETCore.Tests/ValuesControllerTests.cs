@@ -70,9 +70,9 @@ namespace SampleServerlessHttpApiV2ASPNETCore.Tests
                 TelemetryConfiguration.ContextPropagationEnabled = true;
                 request.Headers = new Dictionary<string, string>
                 {
-                    { HttpHeaderNames.B3TraceId, propagatedTraceId },
-                    { HttpHeaderNames.B3SpanId, parentSpanId },
-                    { HttpHeaderNames.B3Sampled, "1" },
+                    { "x-b3-traceid", propagatedTraceId },
+                    { "x-b3-spanid", parentSpanId },
+                    { "x-b3-sampled", "1" },
                 };
 
                 spans = BackendMock.CollectSpans(

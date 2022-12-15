@@ -1,5 +1,3 @@
->ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.
-
 # SignalFx .NET Lambda Wrapper
 
 The SignalFx .NET Lambda Wrapper wraps around an AWS Lambda .NET or ASP.NET Core
@@ -19,7 +17,7 @@ There are two options to use the SignalFx Lambda wrapper:
 
 ## Manually deploy the Lambda wrapper to your code
 
-Follow these steps to add the SignalFx Lambda wrapper for .NET or ASP.NET Core. 
+Follow these steps to add the SignalFx Lambda wrapper for .NET or ASP.NET Core.
 
 ### Step 1. Add the wrapper to your project
 
@@ -33,7 +31,7 @@ what you're instrumenting.
 #### Add the wrapper to your AWS Serverless ASP.NET Core project
 
 Follow these steps to add the wrapper to your ASP.NET Core Lambda function
-after adding the NuGet package. 
+after adding the NuGet package.
 
 1. Change the base class of your `LambdaEntryPoint` to the corresponding
    wrapper class:
@@ -98,7 +96,7 @@ parameters:
 | `tags` | Specify key-value pairs to add span tags to the span. |
 
 You can also enrich spans with environment variables. For more information, see
-[Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net). 
+[Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net).
 
 ### Step 2. Get your organization's realm and access token
 
@@ -114,12 +112,14 @@ To find or create an access token for your organization, go to
 
 Follow these steps to configure your access token and ingest endpoint:
 
-1. Set `SIGNALFX_ACCESS_TOKEN` with your access token: 
+1. Set `SIGNALFX_ACCESS_TOKEN` with your access token:
+
    ```bash
    SIGNALFX_ACCESS_TOKEN=<access-token>
    ```
 
 2. Set `SIGNALFX_ENDPOINT_URL` with your organization's realm:
+
    ```bash
    SIGNALFX_ENDPOINT_URL=https://ingest.<realm>.signalfx.com
    ```
@@ -128,17 +128,20 @@ Follow these steps to configure your access token and ingest endpoint:
    the full path like this: `http://<otel-collector-host>:9411/api/v2/spans`
 
 3. Set `SIGNALFX_ENV` to specify the environment for the service in APM:
+
    ```bash
    SIGNALFX_ENV="yourEnvironment"
    ```
 
 4. If you didn't already specify span tags with the `tags` parameter, add
    span tags to each span by setting `SIGNALFX_TRACE_GLOBAL_TAGS`:
+
    ```bash
    SIGNALFX_TRACE_GLOBAL_TAGS="key1:val1,key2:val2"
    ```
 
 5. (Optional) Globally enable metrics by setting `SIGNALFX_METRICS_ENABLED`:
+
    ```bash
    SIGNALFX_METRICS_ENABLED=true
    ```
@@ -146,6 +149,7 @@ Follow these steps to configure your access token and ingest endpoint:
 6. (Optional) Disable context propagation. The wrapper currently supports only
    B3 context propagation. By default, you should enable context propagation.
    The option to disable this is for security considerations.
+
    ```bash
    SIGNALFX_CTX_PROPAGATION_ENABLED=false
    ```
@@ -153,7 +157,7 @@ Follow these steps to configure your access token and ingest endpoint:
 7. (Optional) Specify other environment variables to better configure the traces.
 
    For a list of all the available configuration options available, see
-   [Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net). 
+   [Configure the SignalFx Tracing Library for .NET](https://github.com/signalfx/signalfx-dotnet-tracing#configure-the-signalfx-tracing-library-for-net).
 
 ## Deploy the Lambda wrapper with a Lambda layer
 
@@ -190,6 +194,7 @@ as the target framework, but `netcoreapp2.1` is also supported.
 ### Deploy the Lambda layer with a configuration file
 
 Use the `json` configuration file to build and deploy your Lambda function. By default, this is named `aws-lambda-tools-defaults.json`.
+
 ```json
        "environment-variables" : "\"DOTNET_SHARED_STORE\"=\"/opt/dotnetcore/store/\"",
        "framework"             : "netcoreapp3.1",
@@ -201,6 +206,7 @@ Use the `json` configuration file to build and deploy your Lambda function. By d
 
 Add these parameters with the `AWS Extensions for .NET CLI` CLI to build and
 deploy your Lambda function:
+
 ```terminal
       --environment-variables DOTNET_SHARED_STORE=/opt/dotnetcore/store/ 
       --framework netcoreapp3.1
@@ -235,7 +241,7 @@ Splunk APM:
 | `function_wrapper_version`  | The SignalFx function wrapper qualifier, For example, `signalfx_lambda_3.0.1.0`. |
 | `metric_source` | The literal value of `lambda_wrapper`. |
 
-## Tags the Lambda wrapper sends 
+## Tags the Lambda wrapper sends
 
 The tracing wrapper creates a span for the wrapper handler. That span contains
 these tags:
@@ -272,3 +278,5 @@ There are several ways to add extra tags or enrich the traces of your service:
 ## License
 
 Apache Software License v2. Copyright © 2014-2021 Splunk
+
+>ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.

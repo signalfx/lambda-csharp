@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>3.0.1.0</Version>
-        <AssemblyVersion>3.0.1</AssemblyVersion>
+        <Version>3.1.0.0</Version>
+        <AssemblyVersion>3.1.0</AssemblyVersion>
         <Title>SignalFx AWS Lambda Wrapper C#</Title>
         <Company>SignalFx</Company>
         <Authors>SignalFx</Authors>
-        <Copyright>Copyright © 2014-2020 Splunk</Copyright>
+        <Copyright>Copyright © 2014-2022 Splunk</Copyright>
         <RepositoryUrl>https://github.com/signalfx/lambda-csharp</RepositoryUrl>
         <DefaultLanguage>en-US</DefaultLanguage>
         <NeutralLanguage>en-US</NeutralLanguage>
@@ -24,7 +24,7 @@
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-        <PackageReference Include="protobuf-net" Version="2.4.0" />
-        <PackageReference Include="SignalFx.Tracing.OpenTracing" Version="0.1.7-rc.2" />
+        <PackageReference Include="protobuf-net" Version="2.4.7" />
+        <PackageReference Include="SignalFx.Tracing.OpenTracing" Version="0.1.16" />
     </ItemGroup>
 </Project>
