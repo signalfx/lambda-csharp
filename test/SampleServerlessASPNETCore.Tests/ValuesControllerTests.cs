@@ -8,7 +8,6 @@ using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
 using SignalFx.LambdaWrapper;
-using SignalFx.Tracing;
 using TestHelpers;
 using Xunit;
 
