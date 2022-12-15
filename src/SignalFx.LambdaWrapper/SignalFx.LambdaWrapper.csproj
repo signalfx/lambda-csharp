@@ -24,7 +24,7 @@
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-        <PackageReference Include="protobuf-net" Version="2.4.0" />
+        <PackageReference Include="protobuf-net" Version="2.4.7" />
         <PackageReference Include="SignalFx.Tracing.OpenTracing" Version="0.1.16" />
     </ItemGroup>
 </Project>
