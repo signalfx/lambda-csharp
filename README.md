@@ -1,3 +1,12 @@
+>ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.
+
+> # :warning: Deprecation Notice
+> The SignalFx .NET Lambda Wrapper is deprecated. Only critical security fixes and bug fixes are provided.
+>
+> After October 9th, 2024 this repository will be archived (read-only). After October 9th, 2024, no updates will be provided and this repository will be unsupported.
+> 
+> Going forward, Lambda functions should use the Splunk OpenTelemetry Lambda Layer, which offers similar capabilities and fully supports the OpenTelemetry standard. To learn more about the Splunk OTel Lambda Layer, see https://docs.splunk.com/Observability/gdi/get-data-in/serverless/aws/otel-lambda-layer/instrument-lambda-functions.html#nav-Instrument-your-Lambda-function
+
 # SignalFx .NET Lambda Wrapper
 
 The SignalFx .NET Lambda Wrapper wraps around an AWS Lambda .NET or ASP.NET Core
